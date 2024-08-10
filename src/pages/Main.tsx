@@ -1,4 +1,4 @@
-import useRouteHandler from "../hooks/useRouteHandler"
+import { useRouteHandler } from "../hooks/routeHandler"
 
 const Main = () => {
     const route = useRouteHandler()

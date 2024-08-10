@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-const useRouteHandler = () => {
+export const useRouteHandler = () => {
   const navigate = useNavigate();
 
   const routeHandler = (url: string) => {
@@ -9,5 +9,3 @@ const useRouteHandler = () => {
 
   return routeHandler;
 };
-
-export default useRouteHandler;
