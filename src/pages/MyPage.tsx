@@ -29,7 +29,7 @@ const MyPage = () => {
                 if (userDocSnap.exists()) {
                  
                     const userData = userDocSnap.data();
-                    const postsIdArray = userData.postsId; // postsId 배열
+                    const postsIdArray = userData.postsId; 
                     console.log(userData)
 
                     if (postsIdArray && postsIdArray.length > 0) {
@@ -46,13 +46,13 @@ const MyPage = () => {
                         const posts = await Promise.all(postFetches);
                         setUserData(posts);
                     } else {
-                        console.log("No posts found for this user.");
+                       alert("게시물 없음");
                     }
                 } else {
-                    console.log("No user document found.");
+                   alert("유저 정보 없음");
                 }
             } catch (error) {
-                console.error("Error fetching user data:", error);
+                console.error(error);
             }
         } else {
             alert('잘못된 접근');
