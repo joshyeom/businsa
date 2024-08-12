@@ -29,6 +29,7 @@ const Main = () => {
             <div>환영합니다</div>
             <button onClick={signoutHandler}>로그아웃</button>
             <button onClick={() => route('mypage')}>마이페이지</button>
+            <button onClick={() => route('create')}>게시글 생성</button>
         </>
       )
     }

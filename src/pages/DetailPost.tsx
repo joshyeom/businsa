@@ -57,7 +57,6 @@ const DetailPost = () => {
         const postDocRef = doc(db, 'allPosts', postId);
         await deleteDoc(postDocRef);
 
-
         const userPostsRef = doc(db, "userPosts", uid);
         const docSnap = await getDoc(userPostsRef);
         const snapData = docSnap.data();
@@ -79,9 +78,15 @@ const DetailPost = () => {
 };
 
   const deleteHandler = (postId: string, uid: string) => {
-    deletePost(postId, uid)
-    alert("삭제 성공")
-    route('mypage')
+    const confirmed = confirm("삭제 하시겠습니까?")
+    if(confirmed){
+      deletePost(postId, uid)
+      alert("삭제 성공")
+      route('mypage')
+    }
+    else{
+      return
+    }
   }
 
 
