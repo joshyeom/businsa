@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { addDoc, collection } from "firebase/firestore";
+import { setDoc, addDoc, doc, getDoc, collection } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
+import { useRouteHandler } from "../hooks/useRouteHandler";
 
 const Post = () => {
     const { currentUser } = useAuth();
@@ -14,6 +15,8 @@ const Post = () => {
     const [price, setPrice] = useState<number>(0);
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const imageRef = useRef<HTMLInputElement | null>(null);
+    const route = useRouteHandler()
+
 
     const uploadHandler = async () => {
         if (!currentUser || !imageRef.current?.files?.length) {
@@ -36,17 +39,38 @@ const Post = () => {
             const urls = await Promise.all(uploadPromises);
             imageUrls.push(...urls);
 
-            // Firestore에 게시글 추가
-            await addDoc(collection(db, "posts"), {
-                userId: currentUser.uid,
-                title: title,
-                description: description,
-                price: price,
-                imageUrls: imageUrls,
-                createdAt: new Date(),
-            });
+            const docRef = doc(db, "posts", currentUser.uid);
+            const docSnap = await getDoc(docRef);
 
-            console.log("게시글 업로드 성공");
+            // Firestore에 게시글 추가
+            if (docSnap.exists()) {
+                // 동일한 uid로 문서가 존재하는 경우, addDoc을 사용하여 새로운 문서 추가
+                const newDocRef = await addDoc(collection(db, "posts"), {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    title: title,
+                    description: description,
+                    price: price,
+                    imageUrls: imageUrls,
+                    createdAt: new Date(),
+                });
+    
+            } else {
+                // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
+                await setDoc(docRef, {
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    title: title,
+                    description: description,
+                    price: price,
+                    imageUrls: imageUrls,
+                    createdAt: new Date(),
+                });
+    
+            };
+
+            alert("게시글 업로드 성공");
+            route('/mypage')
         } catch (error) {
             console.error(error);
         }
