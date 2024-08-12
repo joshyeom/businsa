@@ -1,12 +1,12 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { setDoc, addDoc, doc, getDoc, collection } from 'firebase/firestore';
+import { setDoc, addDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
-import { v4 as uuid } from 'uuid'
+import { v4 as uuid } from "uuid";
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
@@ -33,43 +33,15 @@ const CreatePost = () => {
                 return getDownloadURL(storageRef);
             });
 
+            
             // 모든 업로드가 완료될 때까지 대기
             const urls = await Promise.all(uploadPromises);
             imageUrls.push(...urls);
 
-            // Firestore에서 사용자 게시글 확인
-            const userPostsRef = collection(db, "userPosts");
-            const userDocRef = doc(userPostsRef, currentUser.uid);
-            const docSnap = await getDoc(userDocRef);
-
             const newId = uuid()
+            console.log(newId)
 
-            // Firestore에 게시글 추가
-            if (docSnap.exists()) {
-                await addDoc(collection(userPostsRef, currentUser.uid), {
-                    id: newId,
-                    userId: currentUser.uid,
-                    email: currentUser.email,
-                    title: title,
-                    description: description,
-                    price: price,
-                    imageUrls: imageUrls,
-                    createdAt: new Date(),
-                });
-            } else {
-                await setDoc(userDocRef, {
-                    id: newId,
-                    userId: currentUser.uid,
-                    email: currentUser.email,
-                    title: title,
-                    description: description,
-                    price: price,
-                    imageUrls: imageUrls,
-                    createdAt: new Date(),
-                });
-            }
-
-            await addDoc(collection(db, "allPosts", newId), {
+            await setDoc(doc(db, "allPosts", newId), {
                 id: newId,
                 userId: currentUser.uid,
                 email: currentUser.email,
@@ -80,8 +52,32 @@ const CreatePost = () => {
                 createdAt: new Date(),
             });
 
+            // Firestore에서 사용자 게시물 확인
+            const userPostsRef = collection(db, "userPosts");
+            const userDocRef = doc(userPostsRef, currentUser.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if (docSnap.exists()) {
+                const snapData = docSnap.data();
+                const snapDataPostsId = snapData.postsId || [];
+            
+                const updatedPostsIds = [...snapDataPostsId, newId];
+            
+                await updateDoc(userDocRef, {
+                    postsId: updatedPostsIds,
+                });
+            } else {
+                // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
+                await setDoc(userDocRef, {
+                    email: currentUser.email,
+                    postsId: newId,
+                });
+            }
+
+            
+
             alert("게시글 업로드 성공");
-            route('/mypage');
+            route('mypage');
         } catch (error) {
             console.error(error);
         }
