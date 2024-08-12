@@ -6,6 +6,7 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
+import { v4 as uuid } from 'uuid'
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
@@ -41,10 +42,12 @@ const CreatePost = () => {
             const userDocRef = doc(userPostsRef, currentUser.uid);
             const docSnap = await getDoc(userDocRef);
 
+            const newId = uuid()
+
             // Firestore에 게시글 추가
             if (docSnap.exists()) {
-                // 동일한 uid로 문서가 존재하는 경우, addDoc을 사용하여 새로운 게시글 추가
                 await addDoc(collection(userPostsRef, currentUser.uid), {
+                    id: newId,
                     userId: currentUser.uid,
                     email: currentUser.email,
                     title: title,
@@ -54,8 +57,8 @@ const CreatePost = () => {
                     createdAt: new Date(),
                 });
             } else {
-                // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
                 await setDoc(userDocRef, {
+                    id: newId,
                     userId: currentUser.uid,
                     email: currentUser.email,
                     title: title,
@@ -66,8 +69,8 @@ const CreatePost = () => {
                 });
             }
 
-            // allPosts에도 동일한 데이터 추가
-            await addDoc(collection(db, "allPosts"), {
+            await addDoc(collection(db, "allPosts", newId), {
+                id: newId,
                 userId: currentUser.uid,
                 email: currentUser.email,
                 title: title,
