@@ -42,7 +42,6 @@ const MyPage = () => {
                                 return null;
                             }
                         });
-
                         const posts = await Promise.all(postFetches);
                         setUserData(posts);
                     } else {

@@ -1,7 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { doc, getDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from "../firebase";
+import { useAuth } from "../contexts/AuthContext";
+import { useRouteHandler } from "../hooks/useRouteHandler";
 
 interface UserDataType {
     id: string;
@@ -10,11 +12,16 @@ interface UserDataType {
     imageUrls: string[];
     price: string;
     title: string;
+    userId: string;
 }
   
 const DetailPost = () => {
   const { id } = useParams(); 
+  const { currentUser } = useAuth();
   const [post, setPost] = useState<UserDataType | null>(null); 
+  const [correctUser, setCorrectUser] = useState<boolean>(false)
+  const route = useRouteHandler()
+
 
   useEffect(() => {
     const fetchPost = async () => {
@@ -36,9 +43,51 @@ const DetailPost = () => {
     fetchPost();
   }, [id]);
 
+  useEffect(() => {
+    if(!currentUser || !post) return
+
+    if(currentUser.uid == post.userId){
+      setCorrectUser(true)
+    }
+  },[post])
+
+
+  const deletePost = async (postId: string, uid: string) => {
+    try {
+        const postDocRef = doc(db, 'allPosts', postId);
+        await deleteDoc(postDocRef);
+
+
+        const userPostsRef = doc(db, "userPosts", uid);
+        const docSnap = await getDoc(userPostsRef);
+        const snapData = docSnap.data();
+
+        if(!snapData){
+          return
+        }
+
+        const snapDataPostsId = snapData.postsId || [];
+        const filteredData = snapDataPostsId.filter((id: string) => id !== postId)
+        await updateDoc(userPostsRef, {
+          postsId: filteredData,
+        });
+
+        console.log(`Post with ID ${postId} deleted successfully.`);
+    } catch (error) {
+        console.error("Error deleting post:", error);
+    }
+};
+
+  const deleteHandler = (postId: string, uid: string) => {
+    deletePost(postId, uid)
+    alert("삭제 성공")
+    route('mypage')
+  }
+
+
   return (
     <div>
-      {post ? ( // post가 null이 아닐 때만 렌더링
+      {post ? (
         <>
           <h1>{post.title}</h1>
           <p>{post.description}</p>
@@ -48,6 +97,14 @@ const DetailPost = () => {
               <img key={index} src={image} alt={`${index}`} />
             ))}
           </div>
+          {correctUser && currentUser ? (
+            <>
+              <button onClick={() => deleteHandler(post.id, currentUser.uid)}>삭제</button>
+              <button>수정</button>
+            </>
+            ) :
+            <button>구매</button>
+          }
         </>
       ) : (
         <p>Loading...</p> // post가 null일 때 로딩 메시지 표시
