@@ -15,8 +15,7 @@ const CreatePost = () => {
     const [price, setPrice] = useState<number>(0);
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const imageRef = useRef<HTMLInputElement | null>(null);
-    const route = useRouteHandler()
-
+    const route = useRouteHandler();
 
     const uploadHandler = async () => {
         if (!currentUser || !imageRef.current?.files?.length) {
@@ -29,9 +28,7 @@ const CreatePost = () => {
         try {
             const uploadPromises = files.map(async (file) => {
                 const storageRef = ref(storage, `images/${currentUser.uid}/${file.name}`);
-
                 await uploadBytes(storageRef, file);
-
                 return getDownloadURL(storageRef);
             });
 
@@ -39,13 +36,15 @@ const CreatePost = () => {
             const urls = await Promise.all(uploadPromises);
             imageUrls.push(...urls);
 
-            const docRef = doc(db, "posts", currentUser.uid);
-            const docSnap = await getDoc(docRef);
+            // Firestore에서 사용자 게시글 확인
+            const userPostsRef = collection(db, "userPosts");
+            const userDocRef = doc(userPostsRef, currentUser.uid);
+            const docSnap = await getDoc(userDocRef);
 
             // Firestore에 게시글 추가
             if (docSnap.exists()) {
-                // 동일한 uid로 문서가 존재하는 경우, addDoc을 사용하여 새로운 문서 추가
-                await addDoc(collection(db, "posts"), {
+                // 동일한 uid로 문서가 존재하는 경우, addDoc을 사용하여 새로운 게시글 추가
+                await addDoc(collection(userPostsRef, currentUser.uid), {
                     userId: currentUser.uid,
                     email: currentUser.email,
                     title: title,
@@ -54,10 +53,9 @@ const CreatePost = () => {
                     imageUrls: imageUrls,
                     createdAt: new Date(),
                 });
-    
             } else {
                 // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
-                await setDoc(docRef, {
+                await setDoc(userDocRef, {
                     userId: currentUser.uid,
                     email: currentUser.email,
                     title: title,
@@ -66,11 +64,21 @@ const CreatePost = () => {
                     imageUrls: imageUrls,
                     createdAt: new Date(),
                 });
-    
-            };
+            }
+
+            // allPosts에도 동일한 데이터 추가
+            await addDoc(collection(db, "allPosts"), {
+                userId: currentUser.uid,
+                email: currentUser.email,
+                title: title,
+                description: description,
+                price: price,
+                imageUrls: imageUrls,
+                createdAt: new Date(),
+            });
 
             alert("게시글 업로드 성공");
-            route('/mypage')
+            route('/mypage');
         } catch (error) {
             console.error(error);
         }
