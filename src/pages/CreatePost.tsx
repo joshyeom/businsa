@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { setDoc, addDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
+import { setDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
