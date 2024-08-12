@@ -7,7 +7,7 @@ import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 
-const Post = () => {
+const CreatePost = () => {
     const { currentUser } = useAuth();
     const [role, setRole] = useState<"seller" | "buyer" | null>(null);
     const [title, setTitle] = useState<string>("");
@@ -45,7 +45,7 @@ const Post = () => {
             // Firestore에 게시글 추가
             if (docSnap.exists()) {
                 // 동일한 uid로 문서가 존재하는 경우, addDoc을 사용하여 새로운 문서 추가
-                const newDocRef = await addDoc(collection(db, "posts"), {
+                await addDoc(collection(db, "posts"), {
                     userId: currentUser.uid,
                     email: currentUser.email,
                     title: title,
@@ -128,4 +128,4 @@ const Post = () => {
     );
 };
 
-export default Post;
+export default CreatePost;

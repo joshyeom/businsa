@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Main, Signin, Signup, Post, MyPage } from "./pages";
+import { Main, Signin, Signup, CreatePost, MyPage, DetailPost } from "./pages";
 import { AuthProvider } from "./contexts/AuthContext";
 
 
@@ -11,8 +11,9 @@ const App = () => {
           <Route path="/" element={<Main />} />
           <Route path="/signin" element={<Signin />} />
           <Route path="/signup" element={<Signup />} />
-          <Route path="/post" element={<Post />} />
+          <Route path="/create" element={<CreatePost />} />
           <Route path="/mypage" element={<MyPage />} />
+          <Route path="/detail/:id" element={<DetailPost />} />
         </Routes>
       </Router>
     </AuthProvider>

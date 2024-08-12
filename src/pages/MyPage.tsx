@@ -43,11 +43,11 @@ const MyPage = () => {
             <span>{data.title}</span>
             <p>{data.description}</p>
             <p>{data.price}</p>
-            {/* <div> */}
-              {/* {data.imageUrls.map((image, i) => ( */}
-                {/* <img key={i} src={image} alt={`image-${i}`} /> */}
-              {/* ))} */}
-            {/* </div> */}
+            <div>
+              {data.imageUrls.map((image, i) => ( 
+               <img key={i} src={image} alt={`image-${i}`} />
+             ))}
+           </div>
           </div>
         ))
       ) : (
