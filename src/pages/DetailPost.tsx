@@ -4,6 +4,8 @@ import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouteHandler } from "../hooks/useRouteHandler";
+import { useNavigate } from "react-router-dom";
+
 
 interface UserDataType {
     id: string;
@@ -21,6 +23,7 @@ const DetailPost = () => {
   const [post, setPost] = useState<UserDataType | null>(null); 
   const [correctUser, setCorrectUser] = useState<boolean>(false)
   const route = useRouteHandler()
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -89,6 +92,10 @@ const DetailPost = () => {
     }
   }
 
+  const editHandler = () => {
+    navigate(`/create`, { state: { post } })
+  }
+
 
   return (
     <div>
@@ -105,7 +112,7 @@ const DetailPost = () => {
           {correctUser && currentUser ? (
             <>
               <button onClick={() => deleteHandler(post.id, currentUser.uid)}>삭제</button>
-              <button>수정</button>
+              <button onClick={editHandler}>수정</button>
             </>
             ) :
             <button>구매</button>

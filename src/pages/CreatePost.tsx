@@ -7,9 +7,13 @@ import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { v4 as uuid } from "uuid";
+import { useLocation } from "react-router-dom";
+
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
+    const location = useLocation();
+    const { post } = location.state || {}
     const [role, setRole] = useState<"seller" | "buyer" | null>(null);
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
@@ -17,6 +21,16 @@ const CreatePost = () => {
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const imageRef = useRef<HTMLInputElement | null>(null);
     const route = useRouteHandler();
+
+
+    useEffect(() => {
+        if(post){
+            setTitle(post.title)
+            setDescription(post.description)
+            setPrice(post.price)
+            setPrevImage(post.imageUrls)
+        }
+    })
 
     const uploadHandler = async () => {
         if (!currentUser || !imageRef.current?.files?.length) {
