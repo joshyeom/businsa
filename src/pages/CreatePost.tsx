@@ -30,30 +30,53 @@ const CreatePost = () => {
             setPrice(post.price)
             setPrevImage(post.imageUrls)
         }
-    })
+    },[])
 
     const uploadHandler = async () => {
-        if (!currentUser || !imageRef.current?.files?.length) {
+        if (!currentUser || prevImage.length == 0) {
+            alert("사진을 추가해주세요")
             return;
         }
 
-        const files = Array.from(imageRef.current.files);
+        const files = imageRef.current?.files ? Array.from(imageRef.current.files) : [];
         const imageUrls: string[] = [];
 
         try {
-            const uploadPromises = files.map(async (file) => {
-                const storageRef = ref(storage, `images/${currentUser.uid}/${file.name}`);
-                await uploadBytes(storageRef, file);
-                return getDownloadURL(storageRef);
-            });
-
-            
-            // 모든 업로드가 완료될 때까지 대기
-            const urls = await Promise.all(uploadPromises);
-            imageUrls.push(...urls);
+            if(imageUrls.length > 0){
+                const uploadPromises = files.map(async (file) => {
+                    const storageRef = ref(storage, `images/${currentUser.uid}/${file.name}`);
+                    await uploadBytes(storageRef, file);
+                    return getDownloadURL(storageRef);
+                });
+                
+                const urls = await Promise.all(uploadPromises);
+                imageUrls.push(...urls);
+            }
 
             const newId = uuid()
-            console.log(newId)
+
+            // Firestore에서 사용자 게시물 확인
+            const userPostsRef = collection(db, "userPosts");
+            const userDocRef = doc(userPostsRef, currentUser.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if(post){
+                const newImages = [...prevImage, ...imageUrls]
+                await updateDoc(doc(db, "allPosts", post.id), {
+                    id: newId,
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    title: title,
+                    description: description,
+                    price: price,
+                    imageUrls: newImages,
+                    createdAt: new Date(),
+                });
+                alert("게시글 업로드 성공");
+                route('mypage');
+                return
+            }
+
 
             await setDoc(doc(db, "allPosts", newId), {
                 id: newId,
@@ -66,10 +89,7 @@ const CreatePost = () => {
                 createdAt: new Date(),
             });
 
-            // Firestore에서 사용자 게시물 확인
-            const userPostsRef = collection(db, "userPosts");
-            const userDocRef = doc(userPostsRef, currentUser.uid);
-            const docSnap = await getDoc(userDocRef);
+            
 
             if (docSnap.exists()) {
                 const snapData = docSnap.data();
@@ -81,7 +101,6 @@ const CreatePost = () => {
                     postsId: updatedPostsIds,
                 });
             } else {
-                // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
                 const newArr = [newId]
                 await setDoc(userDocRef, {
                     email: currentUser.email,
@@ -96,7 +115,11 @@ const CreatePost = () => {
     };
 
     const handleImageChange = () => {
-        if (imageRef.current?.files) {
+    if(imageRef.current?.files && post ){
+        const files = Array.from(imageRef.current.files);
+        const urls = files.map(file => URL.createObjectURL(file));
+        setPrevImage((prev) => prev.concat(...urls));
+    }else if (imageRef.current?.files) {
             const files = Array.from(imageRef.current.files);
             const urls = files.map(file => URL.createObjectURL(file));
             setPrevImage(urls);
@@ -113,7 +136,6 @@ const CreatePost = () => {
                 if (!data) {
                     return;
                 }
-                console.log(data);
                 setRole(data.role);
             } catch (error) {
                 console.error(error);
