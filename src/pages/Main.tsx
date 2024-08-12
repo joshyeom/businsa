@@ -1,10 +1,21 @@
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { useAuth } from "../contexts/AuthContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
 
 const Main = () => {
   const route = useRouteHandler();
-  const { currentUser } = useAuth(); // AuthProvider로 감싸져 있어야 합니다.
-  console.log(currentUser)
+  const { currentUser } = useAuth();
+
+  const signoutHandler = async () => {
+    try{
+        await signOut(auth)
+        alert("로그아웃!")
+    }catch(error){
+        console.error(error)
+    }
+  }
+
 
   return (
     <>
@@ -14,7 +25,10 @@ const Main = () => {
           <button onClick={() => route('signup')}>회원가입</button>
         </>
       ) : (
-        <div>환영합니다</div>
+        <>
+            <div>환영합니다</div>
+            <button onClick={signoutHandler}>로그아웃</button>
+        </>
       )
     }
     </>
