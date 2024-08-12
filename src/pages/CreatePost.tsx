@@ -68,14 +68,12 @@ const CreatePost = () => {
                 });
             } else {
                 // 동일한 uid로 문서가 존재하지 않는 경우, setDoc으로 문서 생성
+                const newArr = [newId]
                 await setDoc(userDocRef, {
                     email: currentUser.email,
-                    postsId: newId,
+                    postsId: newArr,
                 });
             }
-
-            
-
             alert("게시글 업로드 성공");
             route('mypage');
         } catch (error) {

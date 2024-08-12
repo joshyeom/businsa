@@ -1,10 +1,11 @@
 import { db } from "../firebase";
-import { collection, getDocs, query, where } from "firebase/firestore"; // 수정: getDocs, query, where 가져오기
+import { doc , getDoc} from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect, useState } from "react";
+import { useRouteHandler } from "../hooks/useRouteHandler";
 
 interface UserDataType {
-  userId: string;
+  id: string;
   email: string;
   description: string;
   imageUrls: string[];
@@ -15,22 +16,49 @@ interface UserDataType {
 const MyPage = () => {
   const { currentUser } = useAuth();
   const [userData, setUserData] = useState<UserDataType[]>([]);
+  const route = useRouteHandler()
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (currentUser) {
-        try {
-            // 'posts' 컬렉션에서 userId가 currentUser.uid인 문서를 쿼리
-        const q = query(collection(db, 'posts'), where('userId', '==', currentUser.uid));
-          const querySnapshot = await getDocs(q);
-          const posts = querySnapshot.docs.map(doc => ({ ...doc.data() })) as UserDataType[]; // 문서 데이터 변환
-          setUserData(posts);
-        } catch (error) {
-          console.error("Error fetching user data:", error);
-        }
-      }
-    };
+        if (currentUser) {
+            try {
+                // 'userPosts' 컬렉션에서 currentUser.uid 문서 가져오기
+                const userPostsRef = doc(db, 'userPosts', currentUser.uid);
+                const userDocSnap = await getDoc(userPostsRef);
+                
+                if (userDocSnap.exists()) {
+                 
+                    const userData = userDocSnap.data();
+                    const postsIdArray = userData.postsId; // postsId 배열
+                    console.log(userData)
 
+                    if (postsIdArray && postsIdArray.length > 0) {
+                        const postFetches = postsIdArray.map(async (postId: string) => {
+                            const postDocRef = doc(db, 'allPosts', postId);
+                            const postDocSnap = await getDoc(postDocRef);
+                            if (postDocSnap.exists()) {
+                                return { ...postDocSnap.data(), id: postDocSnap.id };
+                            } else {
+                                return null;
+                            }
+                        });
+
+                        const posts = await Promise.all(postFetches);
+                        setUserData(posts);
+                    } else {
+                        console.log("No posts found for this user.");
+                    }
+                } else {
+                    console.log("No user document found.");
+                }
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        } else {
+            alert('잘못된 접근');
+            route('/');
+        }
+    };
     fetchUserData();
   }, [currentUser]);
 
@@ -38,16 +66,16 @@ const MyPage = () => {
     <div>
       {userData.length > 0 ? (
         userData.map((data, index) => (
-          <div key={index} style={{width: "100px", height: "100px"}}>
+          <div key={index} onClick={() => route(`detail/${data.id}`)}>
             <span>{data.email}님의 페이지</span>
             <span>{data.title}</span>
             <p>{data.description}</p>
             <p>{data.price}</p>
-            <div>
-              {data.imageUrls.map((image, i) => ( 
+            {/* <div> */}
+              {/* {data.imageUrls.map((image, i) => ( 
                <img key={i} src={image} alt={`image-${i}`} />
-             ))}
-           </div>
+             ))} */}
+           {/* </div> */}
           </div>
         ))
       ) : (
