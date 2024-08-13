@@ -1,4 +1,4 @@
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 import { doc , getDoc, deleteDoc, updateDoc} from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect, useState } from "react";
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { deleteObject, listAll, ref } from "firebase/storage";
 
 
 
@@ -56,8 +57,6 @@ const MyPage = () => {
                         });
                         const posts = await Promise.all(postFetches);
                         setUserData(posts);
-                    } else {
-                       alert("게시물 없음");
                     }
                 } else {
                    alert("유저 정보 없음");
@@ -84,6 +83,13 @@ const MyPage = () => {
           const docSnap = await getDoc(userPostsRef);
           const snapData = docSnap.data();
 
+          
+          const folderRef = ref(storage, `images/${postId}`);
+          const fileList = await listAll(folderRef);
+          const deletePromises = fileList.items.map(fileRef => deleteObject(fileRef));
+          await Promise.all(deletePromises);  
+
+
           if(!snapData){
             return
           }
@@ -93,8 +99,7 @@ const MyPage = () => {
           await updateDoc(userPostsRef, {
             postsId: filteredData,
           });
-
-          console.log(`Post with ID ${postId} deleted successfully.`);
+          setUserData(filteredData);
       } catch (error) {
           console.error("Error deleting post:", error);
       }

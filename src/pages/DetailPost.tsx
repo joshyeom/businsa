@@ -1,12 +1,11 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from "../firebase";
+import { db, storage } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { useNavigate } from "react-router-dom";
-
-
+import { deleteObject, listAll, ref } from "firebase/storage";
 interface UserDataType {
     id: string;
     email: string;
@@ -63,6 +62,12 @@ const DetailPost = () => {
         const userPostsRef = doc(db, "userPosts", uid);
         const docSnap = await getDoc(userPostsRef);
         const snapData = docSnap.data();
+
+        const folderRef = ref(storage, `images/${postId}`);
+        const fileList = await listAll(folderRef);
+        const deletePromises = fileList.items.map(fileRef => deleteObject(fileRef));
+        await Promise.all(deletePromises);  
+
 
         if(!snapData){
           return
