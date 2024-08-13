@@ -57,6 +57,7 @@ const MyPage = () => {
                         });
                         const posts = await Promise.all(postFetches);
                         setUserData(posts);
+                        console.log(userData)
                     }
                 } else {
                    alert("유저 정보 없음");
@@ -82,7 +83,6 @@ const MyPage = () => {
           const userPostsRef = doc(db, "userPosts", uid);
           const docSnap = await getDoc(userPostsRef);
           const snapData = docSnap.data();
-
           
           const folderRef = ref(storage, `images/${postId}`);
           const fileList = await listAll(folderRef);
@@ -99,16 +99,17 @@ const MyPage = () => {
           await updateDoc(userPostsRef, {
             postsId: filteredData,
           });
-          setUserData(filteredData);
+
       } catch (error) {
           console.error("Error deleting post:", error);
       }
     };
 
-    const deleteHandler = (postId: string, uid: string) => {
+    const deleteHandler = (postId: string, uid: string, index: number) => {
       const confirmed = confirm("삭제 하시겠습니까?")
       if(confirmed){
         deletePost(postId, uid)
+        setUserData((prev) => prev.filter((v, i) => i !== index))
         alert("삭제 성공")
       }
       else{
@@ -129,7 +130,7 @@ const MyPage = () => {
       <section className="flex flex-col items-center justify-center min-h-screen">
         <section className="w-[1100px] flex flex-wrap gap-[20px]">
           {userData.length > 0 ? (
-            userData.map((data) => (
+            userData.map((data, index) => (
               <Card className="w-[250px]"  key={data.title}>
                 <img src={data.imageUrls[0]} alt={data.imageUrls[0]} style={{ width: "100%",height: "200px" ,objectFit: "cover"}}  onClick={() => route(`detail/${data.id}`)}/>
                 <CardHeader>
@@ -138,7 +139,7 @@ const MyPage = () => {
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <Button onClick={() => editHandler(data)}>수정</Button>
-                  <Button onClick={() => deleteHandler(data.id, data.userId)}>삭제</Button>
+                  <Button onClick={() => deleteHandler(data.id, data.userId, index)}>삭제</Button>
                 </CardContent>
               </Card>
             ))
