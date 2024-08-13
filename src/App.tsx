@@ -1,6 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Main, Signin, Signup, CreatePost, MyPage, DetailPost } from "./pages";
 import { AuthProvider } from "./contexts/AuthContext";
+import './index.css'
 
 
 const App = () => {

@@ -2,6 +2,7 @@ import { useRouteHandler } from "../hooks/useRouteHandler";
 import { useAuth } from "../contexts/AuthContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { Button } from "@/components/ui/button";
 
 const Main = () => {
   const route = useRouteHandler();
@@ -21,7 +22,10 @@ const Main = () => {
     <>
       {!currentUser ? (
         <>
-          <button onClick={() => route('signin')}>로그인</button>
+          <h1 className="text-3xl font-bold underline">
+            Hello world!
+          </h1>
+          <Button onClick={() => route('signin')}>로그인</Button>
           <button onClick={() => route('signup')}>회원가입</button>
         </>
       ) : (
