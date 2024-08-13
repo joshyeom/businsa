@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, Suspense } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
 import { setDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
@@ -8,7 +8,10 @@ import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { v4 as uuid } from "uuid";
 import { useLocation } from "react-router-dom";
-
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
@@ -21,6 +24,7 @@ const CreatePost = () => {
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const imageRef = useRef<HTMLInputElement | null>(null);
     const route = useRouteHandler();
+
 
 
     useEffect(() => {
@@ -41,10 +45,12 @@ const CreatePost = () => {
         const files = imageRef.current?.files ? Array.from(imageRef.current.files) : [];
         const imageUrls: string[] = [];
 
+        const newId = uuid()
+
         try {
-            if(imageUrls.length > 0){
+            if(files.length > 0){
                 const uploadPromises = files.map(async (file) => {
-                    const storageRef = ref(storage, `images/${currentUser.uid}/${file.name}`);
+                    const storageRef = ref(storage, `images/${newId}/${file.name}`);
                     await uploadBytes(storageRef, file);
                     return getDownloadURL(storageRef);
                 });
@@ -53,7 +59,6 @@ const CreatePost = () => {
                 imageUrls.push(...urls);
             }
 
-            const newId = uuid()
 
             // Firestore에서 사용자 게시물 확인
             const userPostsRef = collection(db, "userPosts");
@@ -148,20 +153,22 @@ const CreatePost = () => {
     return (
         <>
             {role === "seller" ? (
-                <>
-                    <input type="text" placeholder="제목 작성" value={title} name="title" onChange={(event) => changeHandler(event, setTitle)} />
-                    <input type="text" placeholder="설명 작성" value={description} name="description" onChange={(event) => changeHandler(event, setDescription)} />
-                    <input type="number" placeholder="가격 작성" value={price} name="price" onChange={(event) => changeHandler(event, setPrice)} />
-                    <input type="file" ref={imageRef} multiple onChange={handleImageChange} />
-                    <button onClick={uploadHandler}>게시글 업로드</button>
-                    {prevImage.length > 0 && (
-                        <div>
-                            {prevImage.map((url, index) => (
-                                <img key={index} src={url} alt={url} style={{ width: '100px', height: 'auto', margin: '5px' }} />
-                            ))}
-                        </div>
-                    )}
-                </>
+                <Suspense fallback={<Skeleton />}>
+                    <>
+                        <Input type="text" placeholder="제목 작성" value={title} name="title" onChange={(event) => changeHandler(event, setTitle)} />
+                        <Textarea placeholder="설명 작성" value={description} name="description" onChange={(event) => changeHandler(event, setDescription)} />
+                        <Input type="number" placeholder="가격 작성" value={price} name="price" onChange={(event) => changeHandler(event, setPrice)} />
+                        <Input type="file" ref={imageRef} multiple onChange={handleImageChange} />
+                        <Button onClick={uploadHandler}>게시글 업로드</Button>
+                        {prevImage.length >     0 && (
+                            <div>
+                                {prevImage.map((url, index) => (
+                                    <img key={index} src={url} alt={url} style={{ width: '100px', height: 'auto', margin: '5px' }} />
+                                ))}
+                            </div>
+                        )}
+                    </>
+                </Suspense>
             ) : (
                 <div>잘못된 접근입니다.</div>
             )}
