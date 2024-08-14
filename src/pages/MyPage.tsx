@@ -57,7 +57,6 @@ const MyPage = () => {
                         });
                         const posts = await Promise.all(postFetches);
                         setUserData(posts);
-                        console.log(userData)
                     }
                 } else {
                    alert("유저 정보 없음");
@@ -141,7 +140,7 @@ const MyPage = () => {
         <section className="w-4/5 max-w-[1100px] mx-auto flex flex-wrap gap-[20px]">
           {userData.length > 0 ? (
             userData.map((data, index) => (
-              <Card className="w-2/5"  key={data.title}>
+              <Card className="w-full sm:basis-[calc(50%-20px)] md:basis-[calc(33.33%-20px)] flex-shrink-0" key={data.title}>
                 <img src={data.imageUrls[0]} alt={data.imageUrls[0]} style={{ width: "100%",height: "200px" ,objectFit: "contain"}}  onClick={() => route(`detail/${data.id}`)}/>
                 <CardHeader>
                   <CardTitle>{data.title}</CardTitle>
