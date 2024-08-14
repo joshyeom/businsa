@@ -109,7 +109,7 @@ const MyPage = () => {
       const confirmed = confirm("삭제 하시겠습니까?")
       if(confirmed){
         deletePost(postId, uid)
-        setUserData((prev) => prev.filter((v, i) => i !== index))
+        setUserData((prev) => prev.filter((_, i) => i !== index))
         alert("삭제 성공")
       }
       else{
@@ -125,14 +125,24 @@ const MyPage = () => {
 
   return (
     <main>
-      <h2>등록된 물품 정보</h2>
-      <h2>품목</h2>
-      <section className="flex flex-col items-center justify-center min-h-screen">
-        <section className="w-[1100px] flex flex-wrap gap-[20px]">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4 w-4/5 max-w-[1100px] mx-auto pt-[60px]">등록된 물품 정보</h2>
+      <section className="flex justify-between w-4/5 max-w-[1100px] mx-auto pt-[30px]">
+          <div className="w-1/2 flex flex-col items-start bg-white p-4 rounded-lg border border-black mb-2">
+            <span className="text-lg font-semibold">소득</span>
+            <span className="text-lg font-semibold">100,000원</span>
+          </div>
+          <div className="w-1/2 flex flex-col items-start bg-white p-4 rounded-lg border border-black mb-2">
+            <span className="text-lg font-semibold">합계</span>
+            <span className="text-lg font-semibold">50개</span>
+          </div>
+      </section>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4  w-4/5 max-w-[1100px] mx-auto pt-[60px]">품목</h2>
+      <section className="flex flex-col items-center justify-center pt-[60px]">
+        <section className="w-4/5 max-w-[1100px] mx-auto flex flex-wrap gap-[20px]">
           {userData.length > 0 ? (
             userData.map((data, index) => (
-              <Card className="w-[250px]"  key={data.title}>
-                <img src={data.imageUrls[0]} alt={data.imageUrls[0]} style={{ width: "100%",height: "200px" ,objectFit: "cover"}}  onClick={() => route(`detail/${data.id}`)}/>
+              <Card className="w-2/5"  key={data.title}>
+                <img src={data.imageUrls[0]} alt={data.imageUrls[0]} style={{ width: "100%",height: "200px" ,objectFit: "contain"}}  onClick={() => route(`detail/${data.id}`)}/>
                 <CardHeader>
                   <CardTitle>{data.title}</CardTitle>
                   <p>{data.price}원</p>
