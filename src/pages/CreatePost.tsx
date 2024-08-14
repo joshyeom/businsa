@@ -61,8 +61,8 @@ const CreatePost = () => {
 
 
             // Firestore에서 사용자 게시물 확인
-            const userPostsRef = collection(db, "userPosts");
-            const userDocRef = doc(userPostsRef, currentUser.uid);
+            const sellerPostsRef = collection(db, "sellerPosts");
+            const userDocRef = doc(sellerPostsRef, currentUser.uid);
             const docSnap = await getDoc(userDocRef);
 
             if(post){

@@ -36,9 +36,9 @@ const MyPage = () => {
     const fetchUserData = async () => {
         if (currentUser) {
             try {
-                // 'userPosts' 컬렉션에서 currentUser.uid 문서 가져오기
-                const userPostsRef = doc(db, 'userPosts', currentUser.uid);
-                const userDocSnap = await getDoc(userPostsRef);
+                // 'sellerPosts' 컬렉션에서 currentUser.uid 문서 가져오기
+                const sellerPostsRef = doc(db, 'sellerPosts', currentUser.uid);
+                const userDocSnap = await getDoc(sellerPostsRef);
                 
                 if (userDocSnap.exists()) {
                  
@@ -80,8 +80,8 @@ const MyPage = () => {
           const postDocRef = doc(db, 'allPosts', postId);
           await deleteDoc(postDocRef);
 
-          const userPostsRef = doc(db, "userPosts", uid);
-          const docSnap = await getDoc(userPostsRef);
+          const sellerPostsRef = doc(db, "sellerPosts", uid);
+          const docSnap = await getDoc(sellerPostsRef);
           const snapData = docSnap.data();
           
           const folderRef = ref(storage, `images/${postId}`);
@@ -96,7 +96,7 @@ const MyPage = () => {
 
           const snapDataPostsId = snapData.postsId || [];
           const filteredData = snapDataPostsId.filter((id: string) => id !== postId)
-          await updateDoc(userPostsRef, {
+          await updateDoc(sellerPostsRef, {
             postsId: filteredData,
           });
 

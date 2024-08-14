@@ -61,8 +61,8 @@ const DetailPost = () => {
         const postDocRef = doc(db, 'allPosts', postId);
         await deleteDoc(postDocRef);
 
-        const userPostsRef = doc(db, "userPosts", uid);
-        const docSnap = await getDoc(userPostsRef);
+        const sellerPostsRef = doc(db, "sellerPosts", uid);
+        const docSnap = await getDoc(sellerPostsRef);
         const snapData = docSnap.data();
 
         const folderRef = ref(storage, `images/${postId}`);
@@ -77,7 +77,7 @@ const DetailPost = () => {
 
         const snapDataPostsId = snapData.postsId || [];
         const filteredData = snapDataPostsId.filter((id: string) => id !== postId)
-        await updateDoc(userPostsRef, {
+        await updateDoc(sellerPostsRef, {
           postsId: filteredData,
         });
 
@@ -111,8 +111,8 @@ const DetailPost = () => {
   const addCart = async (postId: string) => {
     if(!currentUser) return
     try{
-      const userPostsRef = collection(db, "userPosts");
-      const userDocRef = doc(userPostsRef, currentUser.uid);
+      const buyerPostsRef = collection(db, "buyerPosts");
+      const userDocRef = doc(buyerPostsRef, currentUser.uid);
       const docSnap = await getDoc(userDocRef);
       
       if (docSnap.exists()) {
@@ -122,14 +122,13 @@ const DetailPost = () => {
         const updatedPostsIds = [...snapDataPostsId, postId];
         
         await updateDoc(userDocRef, {
-          postsId: updatedPostsIds,
+          cartPostsId: updatedPostsIds,
         });
         
     } else {
       const newArr = [postId]
       await setDoc(userDocRef, {
-          email: currentUser.email,
-          postsId: newArr,
+          cartPostId: newArr,
         });
       }
     }catch(error){
