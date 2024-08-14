@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
 import { deleteObject, listAll, ref } from "firebase/storage";
 
 
