@@ -6,6 +6,8 @@ import { useAuth } from "../contexts/AuthContext";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { useNavigate } from "react-router-dom";
 import { deleteObject, listAll, ref } from "firebase/storage";
+import { Button } from "@/components/ui/button";
+
 interface UserDataType {
     id: string;
     email: string;
@@ -103,30 +105,48 @@ const DetailPost = () => {
 
 
   return (
-    <div>
+    <main className="flex justify-between items-center w-4/5 mx-auto h-screen pt-[30px] ">
       {post ? (
-        <>
-          <h1>{post.title}</h1>
-          <p>{post.description}</p>
-          <p>{post.price}</p>
-          <div>
+        <section className="w-full flex justify-between">
+          <section className="w-1/2 flex items-center">
+            <aside className="flex items-center flex-col items-center">
+              {post.imageUrls.map((image, index) => (
+                <img key={index} src={image} alt={`${index}`} style={{ width: "100px", height: "100px" ,objectFit: "contain"}} />
+              ))}
+            </aside>
             {post.imageUrls.map((image, index) => (
-              <img key={index} src={image} alt={`${index}`} />
-            ))}
-          </div>
-          {correctUser && currentUser ? (
-            <>
-              <button onClick={() => deleteHandler(post.id, currentUser.uid)}>삭제</button>
-              <button onClick={editHandler}>수정</button>
-            </>
-            ) :
-            <button>구매</button>
-          }
-        </>
+                <img key={index} src={image} alt={`${index}`} style={{ width: "500px", height: "500px" ,objectFit: "contain"}} />
+              ))}
+          </section>
+          <section className="w-1/2 p-6 flex flex-col justify-between">
+            <div>
+              <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                {post.title}
+              </h2>
+              <h3 className="text-md font-semibold text-gray-700 mb-4">
+                {post.email}
+              </h3>
+            </div>
+            <div>
+              <p className="text-gray-600 mb-4">{post.description}</p>
+              <p className="text-lg font-bold text-gray-800 mb-4">
+                {post.price}원
+              </p>
+            </div>
+            {correctUser && currentUser ? (
+              <div className="flex flex-col gap-[6px]">
+                <Button onClick={() => editHandler()}>수정</Button>
+                <Button onClick={() => deleteHandler(post.id, post.userId)}>삭제</Button>
+              </div>
+              ) :
+              <Button>구매</Button>
+            }
+          </section>
+        </section>
       ) : (
         <p>Loading...</p> // post가 null일 때 로딩 메시지 표시
       )}
-    </div>
+    </main>
   );
 };
 
