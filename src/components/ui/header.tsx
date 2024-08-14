@@ -2,11 +2,32 @@ import { Button } from "./button"
 import { useRouteHandler } from "@/hooks/useRouteHandler"
 import { useAuth } from "@/contexts/AuthContext"
 import { signoutHandler } from "@/utils/signoutHandler"
-
+import { fetchUserData } from "@/utils/fetchUserData"
 export const Header = () => {
     const route = useRouteHandler()
     const {currentUser} = useAuth()
 
+
+    const mypageRouter = (uid: string) => {
+        if(!currentUser) return
+        const fetchRole = async () => {
+            try{
+                const data = await fetchUserData(uid);
+
+                if(!data) return
+                
+                const role = data.role
+                if(role === "seller"){
+                    route('/myposts')
+                }else{
+                    route('/mycart')
+                }
+            }catch(error){
+                console.error(error)
+            }
+        }
+        fetchRole()
+    }
     
 
     return(
@@ -19,7 +40,7 @@ export const Header = () => {
             ) : (
                 <div className="w-2/5  flex justify-end">
                     <Button onClick={signoutHandler}>로그아웃</Button>
-                    <Button onClick={() => route('mypage')}>마이페이지</Button>
+                    <Button onClick={() => mypageRouter(currentUser.uid)}>마이 페이지</Button>
                     <Button onClick={() => route('create')}>게시글 생성</Button>
                 </div>
                 )

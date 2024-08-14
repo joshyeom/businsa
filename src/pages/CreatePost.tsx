@@ -81,7 +81,7 @@ const CreatePost = () => {
             }
         
             alert("게시글 업로드 성공");
-            route('mypage');
+            route('myposts');
         } catch (error) {
             console.error(error);
         }

@@ -26,7 +26,7 @@ interface UserDataType {
 }
 
 
-const MyPage = () => {
+const MyPosts = () => {
   const { currentUser } = useAuth();
   const [userData, setUserData] = useState<UserDataType[]>([]);
   const route = useRouteHandler()
@@ -161,4 +161,4 @@ const MyPage = () => {
   );
 };
 
-export default MyPage;
+export default MyPosts;

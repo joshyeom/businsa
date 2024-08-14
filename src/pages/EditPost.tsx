@@ -78,7 +78,7 @@ const EditPost = () => {
                     createdAt: new Date(),
                 });
                 alert("게시글 업로드 성공");
-                route('mypage');
+                route('myposts');
                 return
             }
 
@@ -113,7 +113,7 @@ const EditPost = () => {
                 });
             }
             alert("게시글 업로드 성공");
-            route('mypage');
+            route('myposts');
         } catch (error) {
             console.error(error);
         }

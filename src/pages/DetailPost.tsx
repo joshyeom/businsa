@@ -92,7 +92,7 @@ const DetailPost = () => {
     if(confirmed){
       deletePost(postId, uid)
       alert("삭제 성공")
-      route('mypage')
+      route('myposts')
     }
     else{
       return
