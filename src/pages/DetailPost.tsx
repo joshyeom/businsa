@@ -122,7 +122,7 @@ const DetailPost = () => {
         const updatedPostsIds = [...snapDataPostsId, postId];
         
         await updateDoc(buyerDocRef, {
-          cartPostsId: updatedPostsIds,
+          cartPostId: updatedPostsIds,
         });
         
     } else {

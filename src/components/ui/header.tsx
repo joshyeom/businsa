@@ -18,9 +18,9 @@ export const Header = () => {
                 
                 const role = data.role
                 if(role === "seller"){
-                    route('/myposts')
+                    route('myposts')
                 }else{
-                    route('/mycart')
+                    route('mycart')
                 }
             }catch(error){
                 console.error(error)

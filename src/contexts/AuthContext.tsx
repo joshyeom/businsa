@@ -41,7 +41,6 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       try {
         await setPersistence(auth, browserSessionPersistence);
         const unsubscribe = onAuthStateChanged(auth, (user) => {
-          console.log("Auth state changed: ", user);
           setCurrentUser(user);
           setAuthLoading(false);
         });
