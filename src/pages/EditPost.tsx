@@ -7,13 +7,16 @@ import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { v4 as uuid } from "uuid";
+import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 
-const CreatePost = () => {
+const EditPost = () => {
     const { currentUser } = useAuth();
+    const location = useLocation();
+    const { post } = location.state || {}
     const [role, setRole] = useState<"seller" | "buyer" | null>(null);
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
@@ -21,6 +24,17 @@ const CreatePost = () => {
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const imageRef = useRef<HTMLInputElement | null>(null);
     const route = useRouteHandler();
+
+
+
+    useEffect(() => {
+        if(post){
+            setTitle(post.title)
+            setDescription(post.description)
+            setPrice(post.price)
+            setPrevImage(post.imageUrls)
+        }
+    },[])
 
     const uploadHandler = async () => {
         if (!currentUser || prevImage.length == 0) {
@@ -42,14 +56,32 @@ const CreatePost = () => {
                 });
                 
                 const urls = await Promise.all(uploadPromises);
-                imageUrls.push(...urls.reverse());
+                imageUrls.push(...urls);
             }
 
 
             // Firestore에서 사용자 게시물 확인
             const sellerPostsRef = collection(db, "sellerPosts");
-            const sellerDocRef = doc(sellerPostsRef, currentUser.uid);
-            const docSnap = await getDoc(sellerDocRef);
+            const userDocRef = doc(sellerPostsRef, currentUser.uid);
+            const docSnap = await getDoc(userDocRef);
+
+            if(post){
+                const newImages = [...prevImage, ...imageUrls]
+                await updateDoc(doc(db, "allPosts", post.id), {
+                    id: newId,
+                    userId: currentUser.uid,
+                    email: currentUser.email,
+                    title: title,
+                    description: description,
+                    price: price,
+                    imageUrls: newImages,
+                    createdAt: new Date(),
+                });
+                alert("게시글 업로드 성공");
+                route('mypage');
+                return
+            }
+
 
             await setDoc(doc(db, "allPosts", newId), {
                 id: newId,
@@ -63,23 +95,23 @@ const CreatePost = () => {
             });
 
             
+
             if (docSnap.exists()) {
                 const snapData = docSnap.data();
                 const snapDataPostsId = snapData.postsId || [];
             
                 const updatedPostsIds = [...snapDataPostsId, newId];
             
-                await updateDoc(sellerDocRef, {
+                await updateDoc(userDocRef, {
                     postsId: updatedPostsIds,
                 });
             } else {
                 const newArr = [newId]
-                await setDoc(sellerDocRef, {
+                await setDoc(userDocRef, {
                     email: currentUser.email,
                     postsId: newArr,
                 });
             }
-        
             alert("게시글 업로드 성공");
             route('mypage');
         } catch (error) {
@@ -88,11 +120,15 @@ const CreatePost = () => {
     };
 
     const handleImageChange = () => {
-        if(!imageRef.current?.files) return
-
+    if(imageRef.current?.files && post ){
         const files = Array.from(imageRef.current.files);
         const urls = files.map(file => URL.createObjectURL(file));
         setPrevImage((prev) => prev.concat(...urls));
+    }else if (imageRef.current?.files) {
+            const files = Array.from(imageRef.current.files);
+            const urls = files.map(file => URL.createObjectURL(file));
+            setPrevImage(urls);
+        }
     };
 
     useEffect(() => {
@@ -124,7 +160,7 @@ const CreatePost = () => {
                         <Input type="number" placeholder="가격 작성" value={price} name="price" onChange={(event) => changeHandler(event, setPrice)} />
                         <Input type="file" ref={imageRef} multiple onChange={handleImageChange} />
                         <Button onClick={uploadHandler}>게시글 업로드</Button>
-                        {prevImage.length >     0 && (
+                        {prevImage.length > 0 && (
                             <div>
                                 {prevImage.map((url, index) => (
                                     <img key={index} src={url} alt={url} style={{ width: '100px', height: 'auto', margin: '5px' }} />
@@ -140,4 +176,4 @@ const CreatePost = () => {
     );
 };
 
-export default CreatePost;
+export default EditPost;

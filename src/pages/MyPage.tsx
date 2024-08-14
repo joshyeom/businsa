@@ -118,7 +118,7 @@ const MyPage = () => {
     }
 
     const editHandler = (post: UserDataType) => {
-      navigate(`/create`, { state: { post } })
+      navigate(`/edit`, { state: { post } })
     }
 
 

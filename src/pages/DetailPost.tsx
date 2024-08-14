@@ -100,7 +100,7 @@ const DetailPost = () => {
   }
 
   const editHandler = () => {
-    navigate(`/create`, { state: { post } })
+    navigate(`/edit`, { state: { post } })
   }
 
   const addCartHandler = (postId: string) => {
@@ -146,9 +146,7 @@ const DetailPost = () => {
                 <img key={index} src={image} alt={`${index}`} style={{ width: "100px", height: "100px" ,objectFit: "contain"}} />
               ))}
             </aside>
-            {post.imageUrls.map((image, index) => (
-                <img key={index} src={image} alt={`${index}`} style={{ width: "500px", height: "500px" ,objectFit: "contain"}} />
-              ))}
+                <img key={post.imageUrls[0]} src={post.imageUrls[0]} alt={post.imageUrls[0]} style={{ width: "500px", height: "500px" ,objectFit: "contain"}} />
           </section>
           <section className="w-1/2 p-6 flex flex-col justify-between">
             <div>

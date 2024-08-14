@@ -4,3 +4,4 @@ export { default as Signup } from './pages/Signup';
 export { default as CreatePost } from './pages/CreatePost';
 export { default as DetailPost } from './pages/DetailPost';
 export { default as MyPage } from './pages/MyPage';
+export { default as EditPost } from './pages/EditPost';
