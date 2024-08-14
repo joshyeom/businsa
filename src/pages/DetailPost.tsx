@@ -100,7 +100,7 @@ const DetailPost = () => {
   }
 
   const editHandler = () => {
-    navigate(`/edit`, { state: { post } })
+    navigate(`/edit `, { state: { post } })
   }
 
   const addCartHandler = (postId: string) => {
@@ -112,8 +112,8 @@ const DetailPost = () => {
     if(!currentUser) return
     try{
       const buyerPostsRef = collection(db, "buyerPosts");
-      const userDocRef = doc(buyerPostsRef, currentUser.uid);
-      const docSnap = await getDoc(userDocRef);
+      const buyerDocRef = doc(buyerPostsRef, currentUser.uid);
+      const docSnap = await getDoc(buyerDocRef);
       
       if (docSnap.exists()) {
         const snapData = docSnap.data();
@@ -121,13 +121,13 @@ const DetailPost = () => {
         
         const updatedPostsIds = [...snapDataPostsId, postId];
         
-        await updateDoc(userDocRef, {
+        await updateDoc(buyerDocRef, {
           cartPostsId: updatedPostsIds,
         });
         
     } else {
       const newArr = [postId]
-      await setDoc(userDocRef, {
+      await setDoc(buyerDocRef, {
           cartPostId: newArr,
         });
       }
