@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouteHandler } from "../hooks/useRouteHandler";
@@ -85,7 +85,7 @@ const DetailPost = () => {
     } catch (error) {
         console.error("Error deleting post:", error);
     }
-};
+  };
 
   const deleteHandler = (postId: string, uid: string) => {
     const confirmed = confirm("삭제 하시겠습니까?")
@@ -103,6 +103,39 @@ const DetailPost = () => {
     navigate(`/create`, { state: { post } })
   }
 
+  const addCartHandler = (postId: string) => {
+    addCart(postId)
+    alert("장바구니 저장 완료")
+  }
+
+  const addCart = async (postId: string) => {
+    if(!currentUser) return
+    try{
+      const userPostsRef = collection(db, "userPosts");
+      const userDocRef = doc(userPostsRef, currentUser.uid);
+      const docSnap = await getDoc(userDocRef);
+      
+      if (docSnap.exists()) {
+        const snapData = docSnap.data();
+        const snapDataPostsId = snapData.postsId || [];
+        
+        const updatedPostsIds = [...snapDataPostsId, postId];
+        
+        await updateDoc(userDocRef, {
+          postsId: updatedPostsIds,
+        });
+        
+    } else {
+      const newArr = [postId]
+      await setDoc(userDocRef, {
+          email: currentUser.email,
+          postsId: newArr,
+        });
+      }
+    }catch(error){
+      console.error(error)
+    }
+  }
 
   return (
     <main className="flex justify-between items-center w-4/5 mx-auto h-screen pt-[30px] ">
@@ -135,11 +168,14 @@ const DetailPost = () => {
             </div>
             {correctUser && currentUser ? (
               <div className="flex flex-col gap-[6px]">
-                <Button onClick={() => editHandler()}>수정</Button>
-                <Button onClick={() => deleteHandler(post.id, post.userId)}>삭제</Button>
+                <Button onClick={() => editHandler()}>수정하기</Button>
+                <Button onClick={() => deleteHandler(post.id, post.userId)}>삭제하기</Button>
               </div>
               ) :
-              <Button>구매</Button>
+              <div className="flex flex-col gap-[6px]">
+                <Button onClick={() => addCartHandler(post.id)}>장바구니 담기</Button>
+                <Button>구매하기</Button>
+              </div>
             }
           </section>
         </section>
