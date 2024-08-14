@@ -42,7 +42,7 @@ const CreatePost = () => {
                 });
                 
                 const urls = await Promise.all(uploadPromises);
-                imageUrls.push(...urls.reverse());
+                imageUrls.push(...urls);
             }
 
 
