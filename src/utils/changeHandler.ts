@@ -1,5 +1,5 @@
 export const changeHandler = <T extends string | number>(
-  event: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>,
+  event: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>,
   setState: React.Dispatch<React.SetStateAction<T>>
 ) => {
   const target = event.target as HTMLInputElement;
