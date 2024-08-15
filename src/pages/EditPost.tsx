@@ -59,6 +59,7 @@ const EditPost = () => {
                 imageUrls.push(...urls);
             }
 
+            const newImages = [...prevImage, ...imageUrls]
             await updateDoc(doc(db, "allPosts", post.id), {
                 id: post.id,
                 userId: currentUser.uid,
@@ -66,7 +67,7 @@ const EditPost = () => {
                 title: title,
                 description: description,
                 price: price,
-                imageUrls: imageUrls,
+                imageUrls: newImages,
                 createdAt: new Date(),
             });
 
