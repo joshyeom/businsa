@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { setDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
+import { setDoc, doc, getDoc, collection, updateDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
@@ -51,8 +51,12 @@ const CreatePost = () => {
             const sellerDocRef = doc(sellerPostsRef, currentUser.uid);
             const docSnap = await getDoc(sellerDocRef);
 
-            await setDoc(doc(db, "allPosts", newId), {
-                id: newId,
+            const allPostsRef = collection(db, "allPosts");
+            const querySnapshot = await getDocs(allPostsRef);
+            const newPostId = (querySnapshot.size + 1).toString();
+
+            await setDoc(doc(db, "allPosts", newPostId), {
+                id: newPostId,
                 userId: currentUser.uid,
                 email: currentUser.email,
                 title: title,
@@ -67,13 +71,13 @@ const CreatePost = () => {
                 const snapData = docSnap.data();
                 const snapDataPostsId = snapData.postsId || [];
             
-                const updatedPostsIds = [...snapDataPostsId, newId];
+                const updatedPostsIds = [...snapDataPostsId, newPostId];
             
                 await updateDoc(sellerDocRef, {
                     postsId: updatedPostsIds,
                 });
             } else {
-                const newArr = [newId]
+                const newArr = [newPostId]
                 await setDoc(sellerDocRef, {
                     email: currentUser.email,
                     postsId: newArr,
