@@ -47,9 +47,15 @@ const CreatePost = () => {
         const sellerDocRef = doc(sellerPostsRef, currentUser.uid);
         const docSnap = await getDoc(sellerDocRef);
 
+        const categoryPostsRef = collection(db, "categoryPosts");
+        const categoryDocRef = doc(categoryPostsRef, currentUser.uid);
+        const categoryDocSnap = await getDoc(categoryDocRef);
+
         const allPostsRef = collection(db, "allPosts");
         const querySnapshot = await getDocs(allPostsRef);
         const newPostId = (querySnapshot.size + 1).toString();
+
+
 
         try {
             if(files.length > 0){
@@ -82,6 +88,23 @@ const CreatePost = () => {
             
                 const updatedPostsIds = [...snapDataPostsId, newPostId];
             
+                await updateDoc(categoryDocRef, {
+                    postsId: updatedPostsIds,
+                });
+            } else {
+                const newArr = [newPostId]
+                await setDoc(categoryDocRef, {
+                    postsId: newArr,
+                    category: category
+                });
+            }
+
+            if (categoryDocSnap.exists()) {
+                const snapData = categoryDocSnap.data();
+                const snapDataPostsId = snapData.postsId || [];
+            
+                const updatedPostsIds = [...snapDataPostsId, newPostId];
+            
                 await updateDoc(sellerDocRef, {
                     postsId: updatedPostsIds,
                 });
@@ -94,7 +117,7 @@ const CreatePost = () => {
             }
         
             alert("게시글 업로드 성공");
-            route('myposts');
+            route(`detail/${newPostId}`);
         } catch (error) {
             console.error(error);
         }
@@ -152,7 +175,7 @@ const CreatePost = () => {
                         </DropdownMenuContent>
                         </DropdownMenu>
                         <Button onClick={uploadHandler}>게시글 업로드</Button>
-                        {prevImage.length >     0 && (
+                        {prevImage.length > 0 && (
                             <div>
                                 {prevImage.map((url, index) => (
                                     <img key={index} src={url} alt={url} style={{ width: '100px', height: 'auto', margin: '5px' }} />
