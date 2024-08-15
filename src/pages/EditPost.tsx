@@ -1,8 +1,8 @@
 import { useEffect, useState, useRef, Suspense } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { setDoc, doc, getDoc, collection, updateDoc } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { setDoc, doc, getDoc, collection, updateDoc, deleteDoc } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
@@ -59,32 +59,8 @@ const EditPost = () => {
                 imageUrls.push(...urls);
             }
 
-
-            // Firestore에서 사용자 게시물 확인
-            const sellerPostsRef = collection(db, "sellerPosts");
-            const userDocRef = doc(sellerPostsRef, currentUser.uid);
-            const docSnap = await getDoc(userDocRef);
-
-            if(post){
-                const newImages = [...prevImage, ...imageUrls]
-                await updateDoc(doc(db, "allPosts", post.id), {
-                    id: newId,
-                    userId: currentUser.uid,
-                    email: currentUser.email,
-                    title: title,
-                    description: description,
-                    price: price,
-                    imageUrls: newImages,
-                    createdAt: new Date(),
-                });
-                alert("게시글 업로드 성공");
-                route('myposts');
-                return
-            }
-
-
-            await setDoc(doc(db, "allPosts", newId), {
-                id: newId,
+            await updateDoc(doc(db, "allPosts", post.id), {
+                id: post.id,
                 userId: currentUser.uid,
                 email: currentUser.email,
                 title: title,
@@ -94,42 +70,45 @@ const EditPost = () => {
                 createdAt: new Date(),
             });
 
-            
-
-            if (docSnap.exists()) {
-                const snapData = docSnap.data();
-                const snapDataPostsId = snapData.postsId || [];
-            
-                const updatedPostsIds = [...snapDataPostsId, newId];
-            
-                await updateDoc(userDocRef, {
-                    postsId: updatedPostsIds,
-                });
-            } else {
-                const newArr = [newId]
-                await setDoc(userDocRef, {
-                    email: currentUser.email,
-                    postsId: newArr,
-                });
-            }
-            alert("게시글 업로드 성공");
-            route('myposts');
+                alert("게시글 업로드 성공");
+                route('myposts');
         } catch (error) {
             console.error(error);
         }
     };
 
     const handleImageChange = () => {
-    if(imageRef.current?.files && post ){
-        const files = Array.from(imageRef.current.files);
-        const urls = files.map(file => URL.createObjectURL(file));
-        setPrevImage((prev) => prev.concat(...urls));
-    }else if (imageRef.current?.files) {
+        if(imageRef.current?.files && post && prevImage.length > 0 ){
+            const confirmed = confirm('수정하면 이미지가 모두 삭제됩니다 삭제하시겠습니까?')
+            if(!confirmed) return
+
+            deletePost(post.id)
+
+            setPrevImage([])
             const files = Array.from(imageRef.current.files);
             const urls = files.map(file => URL.createObjectURL(file));
-            setPrevImage(urls);
+            setPrevImage((prev) => prev.concat(...urls));
+        }else if (imageRef.current?.files) {
+            const files = Array.from(imageRef.current.files);
+            const urls = files.map(file => URL.createObjectURL(file));
+            setPrevImage((prev) => prev.concat(...urls));
         }
     };
+    
+
+    const deletePost = async (postId: string) => {
+        try {
+            if(!currentUser) return
+    
+            const folderRef = ref(storage, `images/${postId}`);
+            const fileList = await listAll(folderRef);
+            const deletePromises = fileList.items.map(fileRef => deleteObject(fileRef));
+            await Promise.all(deletePromises);
+    
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
+      };
 
     useEffect(() => {
         const fetchData = async () => {
