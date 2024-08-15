@@ -82,8 +82,8 @@ const CreatePost = () => {
                 category: category
             });
             
-            if (docSnap.exists()) {
-                const snapData = docSnap.data();
+            if (categoryDocSnap.exists()) {
+                const snapData = categoryDocSnap.data();
                 const snapDataPostsId = snapData.postsId || [];
             
                 const updatedPostsIds = [...snapDataPostsId, newPostId];
