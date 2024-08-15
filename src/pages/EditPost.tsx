@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
-import { doc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, listAll, deleteObject } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
-import { v4 as uuid } from "uuid";
 import { useLocation } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -33,6 +32,7 @@ const EditPost = () => {
     const [price, setPrice] = useState<number>(0);
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const [category, setCategory] = useState<string>("")
+    const [newCategory, setNewCategory] = useState<string>("")
     const imageRef = useRef<HTMLInputElement | null>(null);
     const route = useRouteHandler();
 
@@ -57,12 +57,35 @@ const EditPost = () => {
         const files = imageRef.current?.files ? Array.from(imageRef.current.files) : [];
         const imageUrls: string[] = [];
 
-        const newId = uuid()
+
+        if(newCategory){
+            const categoryPostsRef = collection(db, "categoryPosts");
+            const categoryDocRef = doc(categoryPostsRef, currentUser.uid);
+            const categoryDocSnap = await getDoc(categoryDocRef);
+
+
+            if (categoryDocSnap.exists()) {
+                const snapData = categoryDocSnap.data();
+                const snapDataPostsId = snapData.postsId || [];
+            
+                const updatedPostsIds = [...snapDataPostsId, post.id];
+            
+                await updateDoc(categoryDocRef, {
+                    postsId: updatedPostsIds,
+                });
+            } else {
+                const newArr = [post.id]
+                await setDoc(categoryDocRef, {
+                    postsId: newArr,
+                    category: category
+                });
+            }
+        }
 
         try {
             if(files.length > 0){
                 const uploadPromises = files.map(async (file) => {
-                    const storageRef = ref(storage, `images/${newId}/${file.name}`);
+                    const storageRef = ref(storage, `images/${post.id}/${file.name}`);
                     await uploadBytes(storageRef, file);
                     return getDownloadURL(storageRef);
                 });
@@ -82,9 +105,8 @@ const EditPost = () => {
                 imageUrls: newImages,
                 createdAt: new Date(),
             });
-
-                alert("게시글 업로드 성공");
-                route('myposts');
+                alert("게시글 수정 성공");
+                route(`detail/${post.id}`);
         } catch (error) {
             console.error(error);
         }
@@ -152,12 +174,12 @@ const EditPost = () => {
                     <Input type="file" ref={imageRef} multiple onChange={handleImageChange} />
                     <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline">{category ? categories[category] : '카테고리를 선택'}</Button>
+                        <Button variant="outline">{category ? categories[category] : newCategory ? categories[newCategory] : '카테고리를 선택'}</Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
                         <DropdownMenuLabel>카테고리를 선택해주세요</DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuRadioGroup value={category} onValueChange={setCategory}>
+                        <DropdownMenuRadioGroup value={newCategory} onValueChange={setNewCategory}>
                         <DropdownMenuRadioItem value="Men's Clothing">남성 의류</DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="Women's Clothing">여성 의류</DropdownMenuRadioItem>
                         <DropdownMenuRadioItem value="Jewelery">주얼리</DropdownMenuRadioItem>
