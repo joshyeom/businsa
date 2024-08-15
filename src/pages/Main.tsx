@@ -30,7 +30,7 @@ const Main = () => {
             ...doc.data(),
           })) as UserDataType[];
 
-          setAllPosts(posts);
+          setAllPosts(posts.reverse());
       } catch (error) {
           console.error(error);
       }
