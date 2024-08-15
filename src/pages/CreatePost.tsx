@@ -82,18 +82,18 @@ const CreatePost = () => {
                 category: category
             });
             
-            if (categoryDocSnap.exists()) {
-                const snapData = categoryDocSnap.data();
+            if (docSnap.exists()) {
+                const snapData = docSnap.data();
                 const snapDataPostsId = snapData.postsId || [];
             
                 const updatedPostsIds = [...snapDataPostsId, newPostId];
             
-                await updateDoc(categoryDocRef, {
+                await updateDoc(sellerDocRef, {
                     postsId: updatedPostsIds,
                 });
             } else {
                 const newArr = [newPostId]
-                await setDoc(categoryDocRef, {
+                await setDoc(sellerDocRef, {
                     postsId: newArr,
                     category: category
                 });
