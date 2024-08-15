@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, Suspense } from "react";
+import { useEffect, useState, useRef } from "react";
 import { fetchUserData } from "../utils/fetchUserData";
 import { useAuth } from "../contexts/AuthContext";
 import { setDoc, doc, getDoc, collection, updateDoc, getDocs } from 'firebase/firestore';
@@ -6,11 +6,20 @@ import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import { changeHandler } from "../utils/changeHandler";
 import { useRouteHandler } from "../hooks/useRouteHandler";
-import { v4 as uuid } from "uuid";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { categories } from "@/assets/categories";
+
 
 const CreatePost = () => {
     const { currentUser } = useAuth();
@@ -19,6 +28,7 @@ const CreatePost = () => {
     const [description, setDescription] = useState<string>("");
     const [price, setPrice] = useState<number>(0);
     const [prevImage, setPrevImage] = useState<string[]>([]);
+    const [category, setCategory] = useState<string>("")
     const imageRef = useRef<HTMLInputElement | null>(null);
     const route = useRouteHandler();
 
@@ -31,12 +41,20 @@ const CreatePost = () => {
         const files = imageRef.current?.files ? Array.from(imageRef.current.files) : [];
         const imageUrls: string[] = [];
 
-        const newId = uuid()
+
+        // Firestore에서 사용자 게시물 확인
+        const sellerPostsRef = collection(db, "sellerPosts");
+        const sellerDocRef = doc(sellerPostsRef, currentUser.uid);
+        const docSnap = await getDoc(sellerDocRef);
+
+        const allPostsRef = collection(db, "allPosts");
+        const querySnapshot = await getDocs(allPostsRef);
+        const newPostId = (querySnapshot.size + 1).toString();
 
         try {
             if(files.length > 0){
                 const uploadPromises = files.map(async (file) => {
-                    const storageRef = ref(storage, `images/${newId}/${file.name}`);
+                    const storageRef = ref(storage, `images/${newPostId}/${file.name}`);
                     await uploadBytes(storageRef, file);
                     return getDownloadURL(storageRef);
                 });
@@ -44,16 +62,7 @@ const CreatePost = () => {
                 const urls = await Promise.all(uploadPromises);
                 imageUrls.push(...urls);
             }
-
-
-            // Firestore에서 사용자 게시물 확인
-            const sellerPostsRef = collection(db, "sellerPosts");
-            const sellerDocRef = doc(sellerPostsRef, currentUser.uid);
-            const docSnap = await getDoc(sellerDocRef);
-
-            const allPostsRef = collection(db, "allPosts");
-            const querySnapshot = await getDocs(allPostsRef);
-            const newPostId = (querySnapshot.size + 1).toString();
+            
 
             await setDoc(doc(db, "allPosts", newPostId), {
                 id: newPostId,
@@ -64,8 +73,8 @@ const CreatePost = () => {
                 price: price,
                 imageUrls: imageUrls,
                 createdAt: new Date(),
+                category: category
             });
-
             
             if (docSnap.exists()) {
                 const snapData = docSnap.data();
@@ -118,15 +127,30 @@ const CreatePost = () => {
         fetchData();
     }, [currentUser]);
 
+
     return (
         <>
             {role === "seller" ? (
-                <Suspense fallback={<Skeleton />}>
                     <>
                         <Input type="text" placeholder="제목 작성" value={title} name="title" onChange={(event) => changeHandler(event, setTitle)} />
                         <Textarea placeholder="설명 작성" value={description} name="description" onChange={(event) => changeHandler(event, setDescription)} />
                         <Input type="number" placeholder="가격 작성" value={price} name="price" onChange={(event) => changeHandler(event, setPrice)} />
                         <Input type="file" ref={imageRef} multiple onChange={handleImageChange} />
+                        <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">{category ? categories[category] : '카테고리를 선택'}</Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-56">
+                            <DropdownMenuLabel>카테고리를 선택해주세요</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuRadioGroup value={category} onValueChange={setCategory}>
+                            <DropdownMenuRadioItem value="Men's Clothing">남성 의류</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="Women's Clothing">여성 의류</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="Jewelery">주얼리</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem value="Electronics">전자 제품</DropdownMenuRadioItem>
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                        </DropdownMenu>
                         <Button onClick={uploadHandler}>게시글 업로드</Button>
                         {prevImage.length >     0 && (
                             <div>
@@ -136,7 +160,6 @@ const CreatePost = () => {
                             </div>
                         )}
                     </>
-                </Suspense>
             ) : (
                 <div>잘못된 접근입니다.</div>
             )}

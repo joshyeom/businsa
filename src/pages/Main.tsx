@@ -13,6 +13,7 @@ interface UserDataType {
   price: string;
   title: string;
   userId: string;
+  category: string;
 }
 
 const Main = () => {
@@ -22,7 +23,6 @@ const Main = () => {
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-          // 'sellerPosts' 컬렉션에서 currentUser.uid 문서 가져오기
           const allPostsRef = collection(db, 'allPosts');
           const querySnapshot = await getDocs(allPostsRef)
           
@@ -45,7 +45,7 @@ const Main = () => {
         <section className="w-4/5 max-w-[1100px] mx-auto flex flex-wrap gap-[20px]">
           {allPosts && allPosts.length > 0 ? (
             allPosts.map((data) => (
-              <Card className="w-full sm:basis-[calc(50%-20px)] md:basis-[calc(33.33%-20px)] flex-shrink-0" key={data.title}>
+              <Card className="w-full sm:basis-[calc(50%-20px)] md:basis-[calc(25%-20px)] flex-shrink-0" key={data.title}>
                 <img
                   src={data.imageUrls[0]}
                   alt={data.imageUrls[0]}
@@ -68,3 +68,4 @@ const Main = () => {
 }
 
 export default Main;
+
