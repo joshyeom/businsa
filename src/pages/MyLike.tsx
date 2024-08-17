@@ -25,7 +25,7 @@ interface UserDataType {
 }
 
 
-const MyCart = () => {
+const MyLike = () => {
   const { currentUser } = useAuth();
   const [userData, setUserData] = useState<UserDataType[]>([]);
   const route = useRouteHandler()
@@ -41,10 +41,10 @@ const MyCart = () => {
                 if (userDocSnap.exists()) {
                  
                     const userData = userDocSnap.data();
-                    const cartPostIdArray = userData.cartPostId;
+                    const likePostIdArray = userData.likePostId;
 
-                    if (cartPostIdArray && cartPostIdArray.length > 0) {
-                        const postFetches = cartPostIdArray.map(async (postId: string) => {
+                    if (likePostIdArray && likePostIdArray.length > 0) {
+                        const postFetches = likePostIdArray.map(async (postId: string) => {
                             const postDocRef = doc(db, 'allPosts', postId);
                             const postDocSnap = await getDoc(postDocRef);
                             if (postDocSnap.exists()) {
@@ -104,7 +104,7 @@ const MyCart = () => {
     };
 
     const deleteHandler = (postId: string, uid: string, index: number) => {
-      const confirmed = confirm("삭제 하시겠습니까?")
+      const confirmed = confirm("찜 목록에서 삭제 하시겠습니까?")
       if(confirmed){
         deletePost(postId, uid)
         setUserData((prev) => prev.filter((_, i) => i !== index))
@@ -156,4 +156,4 @@ const MyCart = () => {
   );
 };
 
-export default MyCart;
+export default MyLike;

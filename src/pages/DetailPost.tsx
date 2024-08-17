@@ -1,12 +1,13 @@
 import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { collection, deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, storage } from "../firebase";
 import { useAuth } from "../contexts/AuthContext";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import { useNavigate } from "react-router-dom";
 import { deleteObject, listAll, ref } from "firebase/storage";
 import { Button } from "@/components/ui/button";
+import { checkLikePost } from "@/utils/checkLikePost";
 
 interface UserDataType {
     id: string;
@@ -23,6 +24,7 @@ const DetailPost = () => {
   const { currentUser } = useAuth();
   const [post, setPost] = useState<UserDataType | null>(null); 
   const [correctUser, setCorrectUser] = useState<boolean>(false)
+  const [isLike, setIsLike] = useState<boolean>(false)
   const route = useRouteHandler()
   const navigate = useNavigate()
 
@@ -52,7 +54,31 @@ const DetailPost = () => {
 
     if(currentUser.uid == post.userId){
       setCorrectUser(true)
+    }else{
+      const fetchLikeStatus = async () => {
+        try {
+          const res = await checkLikePost(currentUser.uid);
+          
+          if (!res) return;
+          
+          const { docSnap } = res;
+  
+          if (docSnap && docSnap.exists()) {
+            const snapData = docSnap.data();
+            const snapDataPostsId = snapData.likePostId || [];
+            
+            const isLike = snapDataPostsId.findIndex((id: string) => id === post.id);
+            
+            if (isLike !== -1) {
+              setIsLike(true);
+            }
+          }
+      }catch(error){
+        console.error(error)
+      }
     }
+    fetchLikeStatus()
+  }
   },[post])
 
 
@@ -103,32 +129,43 @@ const DetailPost = () => {
     navigate(`/edit `, { state: { post } })
   }
 
-  const addCartHandler = (postId: string) => {
-    addCart(postId)
-    alert("장바구니 저장 완료")
+  const addLikeHandler = (postId: string) => {
+    addLike(postId, isLike)
+    alert("찜 완료")
   }
 
-  const addCart = async (postId: string) => {
+  const addLike = async (postId: string, isLike: boolean) => {
     if(!currentUser) return
     try{
-      const buyerPostsRef = collection(db, "buyerPosts");
-      const buyerDocRef = doc(buyerPostsRef, currentUser.uid);
-      const docSnap = await getDoc(buyerDocRef);
+      const res = await checkLikePost(currentUser.uid);
       
-      if (docSnap.exists()) {
+      if (!res) return;
+      
+      const { buyerDocRef, docSnap } = res;
+      
+      if (docSnap && docSnap.exists()) {
         const snapData = docSnap.data();
         const snapDataPostsId = snapData.postsId || [];
         
-        const updatedPostsIds = [...snapDataPostsId, postId];
-        
-        await updateDoc(buyerDocRef, {
-          cartPostId: updatedPostsIds,
-        });
-        
+        if(!isLike){
+          const updatedPostsIds = [...snapDataPostsId, postId];
+          
+          await updateDoc(buyerDocRef, {
+            likePostId: updatedPostsIds,
+          });
+          setIsLike(true)
+        }else{
+          const updatedPostsIds = snapDataPostsId.filter((id: string) => id !== postId)
+
+          await updateDoc(buyerDocRef, {
+            likePostId: updatedPostsIds,
+          });
+          setIsLike(false)
+        }
     } else {
       const newArr = [postId]
       await setDoc(buyerDocRef, {
-          cartPostId: newArr,
+          likePostId: newArr,
         });
       }
     }catch(error){
@@ -170,14 +207,18 @@ const DetailPost = () => {
               </div>
               ) :
               <div className="flex flex-col gap-[6px]">
-                <Button onClick={() => addCartHandler(post.id)}>장바구니 담기</Button>
+                {
+                  currentUser ? 
+                    <Button onClick={() => addLikeHandler(post.id)}>{isLike ? "찜 해제" : "찜 하기"}</Button>
+                  : null
+                }
                 <Button>구매하기</Button>
               </div>
             }
           </section>
         </section>
       ) : (
-        <p>Loading...</p> // post가 null일 때 로딩 메시지 표시
+        <p>Loading...</p>
       )}
     </main>
   );

@@ -4,5 +4,5 @@ export { default as Signup } from './pages/Signup';
 export { default as CreatePost } from './pages/CreatePost';
 export { default as DetailPost } from './pages/DetailPost';
 export { default as MyPosts } from './pages/MyPosts';
-export { default as MyCart } from './pages/MyCart';
+export { default as MyLike } from './pages/MyLike';
 export { default as EditPost } from './pages/EditPost';
