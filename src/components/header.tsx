@@ -1,32 +1,38 @@
-import { Button } from "./button"
+import { Button } from "./ui/button"
 import { useRouteHandler } from "@/hooks/useRouteHandler"
 import { useAuth } from "@/contexts/AuthContext"
 import { signoutHandler } from "@/utils/signoutHandler"
 import { fetchUserData } from "@/utils/fetchUserData"
+import { useEffect, useState } from "react"
 export const Header = () => {
     const route = useRouteHandler()
     const {currentUser} = useAuth()
+    const [role, setRole] = useState<"seller" | "buyer" | null>(null)
 
-
-    const mypageRouter = (uid: string) => {
+    useEffect(() => {
         if(!currentUser) return
         const fetchRole = async () => {
             try{
-                const data = await fetchUserData(uid);
+                const data = await fetchUserData(currentUser.uid);
 
                 if(!data) return
-                
-                const role = data.role
-                if(role === "seller"){
-                    route('myposts')
-                }else{
-                    route('mycart')
-                }
+                setRole(data.role)
             }catch(error){
                 console.error(error)
             }
         }
         fetchRole()
+    },[currentUser])
+
+    const mypageRouter = (role: "seller" | "buyer" | null) => {
+        if(!role) return
+
+
+        if(role === "seller"){
+            route('myposts')
+        }else{
+            route('mycart')
+        }
     }
     
 
@@ -39,8 +45,13 @@ export const Header = () => {
                 </div>
             ) : (
                 <div className="w-2/5  flex justify-end">
+                    {
+                        role === "buyer" ? 
+                            <Button>장바구니</Button>
+                        : null
+                    }
                     <Button onClick={signoutHandler}>로그아웃</Button>
-                    <Button onClick={() => mypageRouter(currentUser.uid)}>마이 페이지</Button>
+                    <Button onClick={() => mypageRouter(role)}>마이 페이지</Button>
                     <Button onClick={() => route('create')}>게시글 생성</Button>
                 </div>
                 )

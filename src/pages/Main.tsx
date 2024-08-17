@@ -1,4 +1,4 @@
-import { Header } from "@/components/ui/header";
+import { Header } from "@/components/header";
 import { db } from "@/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useState } from "react";
