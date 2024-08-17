@@ -25,6 +25,7 @@ const DetailPost = () => {
   const [post, setPost] = useState<UserDataType | null>(null); 
   const [correctUser, setCorrectUser] = useState<boolean>(false)
   const [isLike, setIsLike] = useState<boolean>(false)
+  const [isCart, setIsCart] = useState<boolean>(false)
   const route = useRouteHandler()
   const navigate = useNavigate()
 
@@ -51,6 +52,14 @@ const DetailPost = () => {
 
   useEffect(() => {
     if(!currentUser || !post) return
+
+    const savedCart = localStorage.getItem("cart");
+    if(!savedCart) return
+
+    const cartItems = JSON.parse(savedCart) as string[];
+    const filtered = cartItems.findIndex(item => item === post.id);
+
+    if (filtered !== -1) setIsCart(true);
 
     if(currentUser.uid == post.userId){
       setCorrectUser(true)
@@ -80,7 +89,6 @@ const DetailPost = () => {
     fetchLikeStatus()
   }
   },[post])
-
 
   const deletePost = async (postId: string, uid: string) => {
     try {
@@ -129,7 +137,7 @@ const DetailPost = () => {
     navigate(`/edit `, { state: { post } })
   }
 
-  const addLikeHandler = (postId: string) => {
+  const likeHandler = (postId: string) => {
     addLike(postId, isLike)
     alert("찜 완료")
   }
@@ -173,6 +181,20 @@ const DetailPost = () => {
     }
   }
 
+  const cartHandler = (id: string, isCart: boolean) => {
+    const cart = localStorage.getItem("cart");
+    const cartItems = cart ? JSON.parse(cart) : [];
+    if(!isCart){
+      cartItems.push(id);
+      localStorage.setItem("cart", JSON.stringify(cartItems));
+      setIsCart(true)
+    }else{
+      const filtered = cartItems.filter((item: string) => item !== id)
+      localStorage.setItem("cart", JSON.stringify(filtered));
+      setIsCart(false)
+    }
+  }
+
   return (
     <main className="flex justify-between items-center w-4/5 mx-auto h-screen pt-[30px] ">
       {post ? (
@@ -209,7 +231,10 @@ const DetailPost = () => {
               <div className="flex flex-col gap-[6px]">
                 {
                   currentUser ? 
-                    <Button onClick={() => addLikeHandler(post.id)}>{isLike ? "찜 해제" : "찜 하기"}</Button>
+                  <>
+                    <Button onClick={() => likeHandler(post.id)}>{isLike ? "찜 해제" : "찜 하기"}</Button>
+                    <Button onClick={() => cartHandler(post.id, isCart)}>{isCart ? "장바구니 해제" : "장바구니 담기"}</Button>
+                  </>
                   : null
                 }
                 <Button>구매하기</Button>
