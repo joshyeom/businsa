@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { deleteObject, listAll, ref } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { checkLikePost } from "@/utils/checkLikePost";
+import { categories } from "@/assets/categories";
 
 interface UserDataType {
     id: string;
@@ -17,6 +18,8 @@ interface UserDataType {
     price: string;
     title: string;
     userId: string;
+    amount: string;
+    category: string;
 }
   
 const DetailPost = () => {
@@ -214,6 +217,9 @@ const DetailPost = () => {
               <h3 className="text-md font-semibold text-gray-700 mb-4">
                 {post.email}
               </h3>
+              <Button onClick={() => route(`${post.category}`)}>
+                {categories[post.category]}
+              </Button>
             </div>
             <div>
               <p className="text-gray-600 mb-4">{post.description}</p>
@@ -221,7 +227,7 @@ const DetailPost = () => {
                 {post.price}원
               </p>
               <p className="text-lg font-bold text-gray-800 mb-4">
-                {post.price}개 남음
+                {post.amount}개 남음
               </p>
             </div>
             {correctUser && currentUser ? (

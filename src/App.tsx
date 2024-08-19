@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Main, Signin, Signup, CreatePost, MyPosts, DetailPost, EditPost, MyLike } from "./pages";
+import { Main, Signin, Signup, CreatePost, MyPosts, DetailPost, EditPost, MyLike, Category } from "./pages";
 import { AuthProvider } from "./contexts/AuthContext";
 import './index.css'
 
@@ -17,6 +17,7 @@ const App = () => {
           <Route path="/myposts" element={<MyPosts />} />
           <Route path="/myLike" element={<MyLike />} />
           <Route path="/detail/:id" element={<DetailPost />} />
+          <Route path="/:id" element={<Category />} />
         </Routes>
       </Router>
     </AuthProvider>

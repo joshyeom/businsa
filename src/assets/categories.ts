@@ -1,6 +1,6 @@
 export const categories: { [key: string]: string } = {
-  "Men's Clothing": '남성 의류',
-  "Women's Clothing": '여성 의류',
-  Jewelery: '주얼리',
-  Electronics: '전자 제품',
+  mensClothing: '남성 의류',
+  womensclothing: '여성 의류',
+  jewelery: '주얼리',
+  electronics: '전자 제품',
 };
