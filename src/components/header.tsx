@@ -4,6 +4,8 @@ import { useAuth } from "@/contexts/AuthContext"
 import { signoutHandler } from "@/utils/signoutHandler"
 import { fetchUserData } from "@/utils/fetchUserData"
 import { useEffect, useState } from "react"
+import { CartSheet } from "./cartSheet"
+
 export const Header = () => {
     const route = useRouteHandler()
     const {currentUser} = useAuth()
@@ -47,7 +49,7 @@ export const Header = () => {
                 <div className="w-2/5  flex justify-end">
                     {
                         role === "buyer" ? 
-                            <Button>장바구니</Button>
+                            <CartSheet/>
                         : null
                     }
                     <Button onClick={signoutHandler}>로그아웃</Button>
