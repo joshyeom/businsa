@@ -27,6 +27,7 @@ const CreatePost = () => {
     const [title, setTitle] = useState<string>("");
     const [description, setDescription] = useState<string>("");
     const [price, setPrice] = useState<number>(0);
+    const [amount, setAmount] = useState<number>(0);
     const [prevImage, setPrevImage] = useState<string[]>([]);
     const [category, setCategory] = useState<string>("")
     const imageRef = useRef<HTMLInputElement | null>(null);
@@ -79,7 +80,8 @@ const CreatePost = () => {
                 price: price,
                 imageUrls: imageUrls,
                 createdAt: new Date(),
-                category: category
+                category: category,
+                amount: amount
             });
             
             if (docSnap.exists()) {
@@ -158,6 +160,7 @@ const CreatePost = () => {
                         <Input type="text" placeholder="제목 작성" value={title} name="title" onChange={(event) => changeHandler(event, setTitle)} />
                         <Textarea placeholder="설명 작성" value={description} name="description" onChange={(event) => changeHandler(event, setDescription)} />
                         <Input type="number" placeholder="가격 작성" value={price} name="price" onChange={(event) => changeHandler(event, setPrice)} />
+                        <Input type="number" placeholder="개수 작성" value={amount} name="amount" onChange={(event) => changeHandler(event, setAmount)} />
                         <Input type="file" ref={imageRef} multiple onChange={handleImageChange} />
                         <DropdownMenu>
                         <DropdownMenuTrigger asChild>

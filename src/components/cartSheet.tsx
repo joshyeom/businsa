@@ -88,7 +88,4 @@ export const CartSheet: React.FC = () => {
           </SheetContent>
         </Sheet>
       );
-      
-      
-      
 }

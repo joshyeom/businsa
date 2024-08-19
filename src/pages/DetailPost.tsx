@@ -34,12 +34,11 @@ const DetailPost = () => {
     const fetchPost = async () => {
       if (id) {
         try {
-          // 단일 문서를 가져오기 위해 doc과 getDoc 사용
           const postRef = doc(db, "allPosts", id);
-          const postSnap = await getDoc(postRef); // 문서 가져오기
+          const postSnap = await getDoc(postRef); 
 
           if (postSnap.exists()) {
-            setPost(postSnap.data() as UserDataType); // 문서 데이터 설정
+            setPost(postSnap.data() as UserDataType);
           }
         } catch (error) {
           console.error("Error fetching post:", error);
@@ -220,6 +219,9 @@ const DetailPost = () => {
               <p className="text-gray-600 mb-4">{post.description}</p>
               <p className="text-lg font-bold text-gray-800 mb-4">
                 {post.price}원
+              </p>
+              <p className="text-lg font-bold text-gray-800 mb-4">
+                {post.price}개 남음
               </p>
             </div>
             {correctUser && currentUser ? (
