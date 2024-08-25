@@ -20,6 +20,7 @@ import {
     DropdownMenuTrigger,
   } from "@/components/ui/dropdown-menu"
 import { categories } from "@/assets/categories";
+import { convertToWebP } from "@/services/convertToWebp";
   
 
 const EditPost = () => {
@@ -86,10 +87,15 @@ const EditPost = () => {
         try {
             if(files.length > 0){
                 const uploadPromises = files.map(async (file) => {
+                    const convertedImage = await convertToWebP(file)
                     const storageRef = ref(storage, `images/${post.id}/${file.name}`);
-                    await uploadBytes(storageRef, file);
+                    if (!convertedImage) {
+                        throw new Error('Failed to convert image to WebP');
+                      }
+              
+                    await uploadBytes(storageRef, convertedImage);
                     return getDownloadURL(storageRef);
-                });
+                })
                 
                 const urls = await Promise.all(uploadPromises);
                 imageUrls.push(...urls);
