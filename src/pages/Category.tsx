@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouteHandler } from "@/hooks/useRouteHandler";
 import { useParams } from "react-router-dom";
 import { categories } from "@/assets/categories";
+import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 
 interface UserDataType {
   id: string;
@@ -45,7 +46,10 @@ const Category = () => {
     <>
       <Header/>
       <section className="flex flex-col items-center justify-center pt-[60px]">
-        <h2 className="text-3xl font-bold text-gray-900 mb-10">{id ? categories[id] : null} 카테고리 검색 결과입니다</h2>
+        <div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-10">{id ? categories[id] : null} 카테고리 검색 결과입니다</h2>
+            
+        </div>
         <section className="w-4/5 max-w-[1100px] mx-auto flex flex-wrap gap-[20px]">
           {allPosts && allPosts.length > 0 ? (
             allPosts.map((data) => (

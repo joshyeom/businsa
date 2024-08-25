@@ -39,7 +39,7 @@ export const Header = () => {
     
 
     return(
-        <header className="w-full bg-white border-b shadow-sm flex justify-end sticky top-0 z-50">
+        <header className="w-full h-auto bg-white border-b shadow-sm flex justify-end sticky top-0 z-50">
             {!currentUser ? (
                 <div className="w-2/5  flex justify-end">
                     <Button onClick={() => route('signin')}>로그인</Button>

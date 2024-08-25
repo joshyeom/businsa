@@ -9,7 +9,7 @@ import { db } from "@/firebase"
 import { collection, doc } from "firebase/firestore"
 import { getDoc } from "firebase/firestore"
 import { useRouteHandler } from "@/hooks/useRouteHandler"
-import { Badge } from "./ui/badge"
+import { Button } from "./ui/button"
 
 interface cartsTypes{
     id: string;
@@ -60,11 +60,10 @@ export const CartSheet: React.FC = () => {
         fetchCarts();
     }, [currentUser]);
      
-
     return (
         <Sheet>
-           <SheetTrigger className="relative inline-flex items-center p-2 bg-blue-500 text-white rounded-lg shadow-md hover:bg-blue-600 transition-colors duration-200">
-            <span className="text-lg font-medium">장바구니</span>
+           <SheetTrigger className="relative inline-flex items-center text-white rounded-lg">
+            <Button>장바구니</Button>
             {carts.length > 0 && (
                 <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2 w-6 h-6 text-xs font-semibold bg-red-500 text-white rounded-full flex items-center justify-center">
                     {carts.length}
