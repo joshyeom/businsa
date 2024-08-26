@@ -4,7 +4,6 @@ import { AuthProvider } from "./contexts/AuthContext";
 import './index.css'
 import { Helmet } from 'react-helmet'
 
-
 const App = () => {
   return(
     <AuthProvider>

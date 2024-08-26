@@ -1,9 +1,11 @@
+import { lazy } from 'react';
+
 export { default as Main } from './pages/Main';
-export { default as Signin } from './pages/Signin';
-export { default as Signup } from './pages/Signup';
-export { default as CreatePost } from './pages/CreatePost';
-export { default as DetailPost } from './pages/DetailPost';
-export { default as MyPosts } from './pages/MyPosts';
-export { default as MyLike } from './pages/MyLike';
-export { default as EditPost } from './pages/EditPost';
-export { default as Category } from './pages/Category';
+export const Signin = lazy(() => import('./pages/Signin'));
+export const Signup = lazy(() => import('./pages/Signup'));
+export const CreatePost = lazy(() => import('./pages/CreatePost'));
+export const MyPosts = lazy(() => import('./pages/MyPosts'));
+export const DetailPost = lazy(() => import('./pages/DetailPost'));
+export const EditPost = lazy(() => import('./pages/EditPost'));
+export const MyLike = lazy(() => import('./pages/MyLike'));
+export const Category = lazy(() => import('./pages/Category'));

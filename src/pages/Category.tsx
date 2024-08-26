@@ -6,7 +6,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouteHandler } from "@/hooks/useRouteHandler";
 import { useParams } from "react-router-dom";
 import { categories } from "@/assets/categories";
-import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
 
 interface UserDataType {
   id: string;
