@@ -33,7 +33,7 @@ export const Header = () => {
         if(role === "seller"){
             route('myposts')
         }else{
-            route('mycart')
+            route('mylike')
         }
     }
     
