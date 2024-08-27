@@ -1,7 +1,6 @@
 import { db, storage } from "../firebase";
 import { doc , getDoc, deleteDoc, updateDoc} from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
-import { useEffect, useState } from "react";
 import { useRouteHandler } from "../hooks/useRouteHandler";
 import {
   Card,
@@ -11,6 +10,7 @@ import {
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
 import { deleteObject, listAll, ref } from "firebase/storage";
+import { useQuery } from "@tanstack/react-query";
 
 
 
@@ -25,51 +25,45 @@ interface UserDataType {
 }
 
 
+const fetchUserData = async (uid: string) => {
+
+  const buyerPostsRef = doc(db, 'buyerPosts', uid);
+  const userDocSnap = await getDoc(buyerPostsRef);
+
+  if (userDocSnap.exists()) {
+    const userData = userDocSnap.data();
+    const likePostIdArray = userData?.likePostId;
+
+    if (likePostIdArray && likePostIdArray.length > 0) {
+      const postFetches = likePostIdArray.map(async (postId: string) => {
+        const postDocRef = doc(db, 'allPosts', postId);
+        const postDocSnap = await getDoc(postDocRef);
+        if (postDocSnap.exists()) {
+          return { ...postDocSnap.data(), id: postDocSnap.id };
+        } else {
+          return null;
+        }
+      });
+
+      const posts = await Promise.all(postFetches);
+      return posts.filter(post => post !== null); // null 값을 필터링하여 반환
+    }
+  }
+  
+  return [];
+}
+
+
 const MyLike = () => {
   const { currentUser } = useAuth();
-  const [userData, setUserData] = useState<UserDataType[]>([]);
   const route = useRouteHandler()
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-        if (currentUser) {
-            try {
-                // 'buyerPosts' 컬렉션에서 currentUser.uid 문서 가져오기
-                const buyerPostsRef = doc(db, 'buyerPosts', currentUser.uid);
-                const userDocSnap = await getDoc(buyerPostsRef);
-                
-                if (userDocSnap.exists()) {
-                 
-                    const userData = userDocSnap.data();
-                    const likePostIdArray = userData.likePostId;
-
-                    if (likePostIdArray && likePostIdArray.length > 0) {
-                        const postFetches = likePostIdArray.map(async (postId: string) => {
-                            const postDocRef = doc(db, 'allPosts', postId);
-                            const postDocSnap = await getDoc(postDocRef);
-                            if (postDocSnap.exists()) {
-                                return { ...postDocSnap.data(), id: postDocSnap.id };
-                            } else {
-                                return null;
-                            }
-                        });
-                        const posts = await Promise.all(postFetches);
-                        setUserData(posts);
-                        console.log(posts)
-                    }
-                } else {
-                   alert("유저 정보 없음");
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        } else {
-            alert('잘못된 접근');
-            route('/');
-        }
-    };
-    fetchUserData();
-  }, [currentUser]);
+  if(!currentUser) return
+  const { data: userData = [] , isLoading, error } = useQuery<UserDataType[], Error>({
+    queryKey: ['like', `${currentUser.uid}`],
+    queryFn: () => fetchUserData(currentUser.uid),
+    staleTime: 1000 * 60
+  })
 
 
 
@@ -107,7 +101,7 @@ const MyLike = () => {
       const confirmed = confirm("찜 목록에서 삭제 하시겠습니까?")
       if(confirmed){
         deletePost(postId, uid)
-        setUserData((prev) => prev.filter((_, i) => i !== index))
+        userData.filter((_, i) => i !== index)
         alert("삭제 성공")
       }
       else{
