@@ -1,11 +1,11 @@
 import { Header } from "@/components/header";
 import { db } from "@/firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { useEffect, useState } from "react";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { useRouteHandler } from "@/hooks/useRouteHandler";
 import { useParams } from "react-router-dom";
 import { categories } from "@/assets/categories";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserDataType {
   id: string;
@@ -18,28 +18,27 @@ interface UserDataType {
   category: string;
 }
 
+const fetchAllData = async (id: string) => {
+  const allPostsRef = collection(db, 'allPosts');
+  const querySnapshot = await getDocs(allPostsRef);
+  const posts = querySnapshot.docs.map(doc => doc.data() as UserDataType);
+  const filtered = posts.filter((item) => item.category === id)
+  return filtered
+};
+
 const Category = () => {
-  const [allPosts, setAllPosts] = useState<UserDataType[] | null>(null)
   const { id } = useParams<string>()
   const route = useRouteHandler()
 
-  useEffect(() => {
-    const fetchAllData = async () => {
-      try {
-          const allPostsRef = collection(db, 'allPosts');
-          const querySnapshot = await getDocs(allPostsRef)
-          
-          const posts = querySnapshot.docs.map(doc => ({
-            ...doc.data(),
-          })) as UserDataType[];
-          const filtered = posts.filter((item) => item.category === id)
-          setAllPosts(filtered.reverse());
-      } catch (error) {
-          console.error(error);
-      }
-    };
-    fetchAllData();
-  }, []);
+  const { data: allPosts = [], isLoading, error} = useQuery<UserDataType[], Error>({
+    queryKey: ['allPosts'],
+    queryFn: () => fetchAllData(id || ''),
+    staleTime: 1000 * 60 * 3 // 3분 캐싱
+  })
+
+  if (isLoading) return <div>Loading...</div>;
+
+  if (error) return <div>Error loading posts</div>;
 
   return (
     <>
@@ -61,7 +60,7 @@ const Category = () => {
                 />
                 <CardHeader>
                   <CardTitle>{data.title}</CardTitle>
-                  <p>{data.price}원</p>
+                  <p>{data.price}$</p>
                 </CardHeader>
               </Card>
             ))
@@ -75,4 +74,3 @@ const Category = () => {
 }
 
 export default Category;
-

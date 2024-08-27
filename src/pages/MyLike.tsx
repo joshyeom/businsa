@@ -140,7 +140,7 @@ const MyLike = () => {
                 <img src={data.imageUrls[0]} alt={data.imageUrls[0]} style={{ width: "100%",height: "200px" ,objectFit: "contain"}}  onClick={() => route(`detail/${data.id}`)}/>
                 <CardHeader>
                   <CardTitle>{data.title}</CardTitle>
-                  <p>{data.price}원</p>
+                  <p>{data.price}$</p>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
                   <Button onClick={() => deleteHandler(data.id, data.userId, index)}>삭제</Button>
