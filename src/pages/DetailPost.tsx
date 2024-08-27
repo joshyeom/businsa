@@ -9,6 +9,7 @@ import { deleteObject, listAll, ref } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { checkLikePost } from "@/utils/checkLikePost";
 import { categories } from "@/assets/categories";
+import { useQuery } from "@tanstack/react-query";
 
 interface UserDataType {
     id: string;
@@ -22,35 +23,35 @@ interface UserDataType {
     category: string;
 }
   
+const fetchPost = async (id: string) => {
+    const postRef = doc(db, "allPosts", id);
+    const postSnap = await getDoc(postRef); 
+    return postSnap.data() as UserDataType
+}
+
+
 const DetailPost = () => {
   const { id } = useParams(); 
   const { currentUser } = useAuth();
-  const [post, setPost] = useState<UserDataType | null>(null); 
   const [correctUser, setCorrectUser] = useState<boolean>(false)
   const [isLike, setIsLike] = useState<boolean>(false)
   const [isCart, setIsCart] = useState<boolean>(false)
   const route = useRouteHandler()
   const navigate = useNavigate()
 
-
-  useEffect(() => {
-    const fetchPost = async () => {
-      if (id) {
-        try {
-          const postRef = doc(db, "allPosts", id);
-          const postSnap = await getDoc(postRef); 
-
-          if (postSnap.exists()) {
-            setPost(postSnap.data() as UserDataType);
-          }
-        } catch (error) {
-          console.error("Error fetching post:", error);
-        }
-      }
-    };
-
-    fetchPost();
-  }, [id]);
+  const { data: post, isLoading, error } = useQuery<UserDataType | null, Error>({
+    queryKey: ['detailPost', id],
+    queryFn: () => fetchPost(id || ''),
+    staleTime: 1000 * 60 * 3 // 3분 캐싱
+  })
+  
+  if (isLoading) {
+    console.log("Loading...");
+  }
+  
+  if (error) {
+    console.error("Error:", error);
+  }
 
   useEffect(() => {
     if(!currentUser || !post) return
