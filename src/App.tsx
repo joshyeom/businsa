@@ -5,7 +5,7 @@ import './index.css'
 import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-
+import { Suspense } from "react";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -18,19 +18,21 @@ const App = () => {
             <title>Businsa</title>
             <meta name="description" content="Welcome to Businsa" />
           </Helmet>
-          <Routes>
-            <Route path="/" element={<Main />} />
-            <Route path="/signin" element={<Signin />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/create" element={<CreatePost />} />
-            <Route path="/edit" element={<EditPost />} />
-            <Route path="/myposts" element={<MyPosts />} />
-            <Route path="/myLike" element={<MyLike />} />
-            <Route path="/detail/:id" element={<DetailPost />} />
-            <Route path="/:id" element={<Category />} />
-          </Routes>
+          <Suspense fallback={<div>Loading...</div>}>
+            <Routes>
+              <Route path="/" element={<Main />} />
+              <Route path="/signin" element={<Signin />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/create" element={<CreatePost />} />
+              <Route path="/edit" element={<EditPost />} />
+              <Route path="/myposts" element={<MyPosts />} />
+              <Route path="/myLike" element={<MyLike />} />
+              <Route path="/detail/:id" element={<DetailPost />} />
+              <Route path="/:id" element={<Category />} />
+            </Routes>
+          </Suspense>
+          <ReactQueryDevtools initialIsOpen={true} />
         </Router>
-        <ReactQueryDevtools initialIsOpen={true} />
       </QueryClientProvider>
     </AuthProvider>
   );

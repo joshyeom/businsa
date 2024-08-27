@@ -31,7 +31,7 @@ const Category = () => {
   const route = useRouteHandler()
 
   const { data: allPosts = [], isLoading, error} = useQuery<UserDataType[], Error>({
-    queryKey: ['allPosts'],
+    queryKey: ['allPosts', id],
     queryFn: () => fetchAllData(id || ''),
     staleTime: 1000 * 60 * 3 // 3분 캐싱
   })
