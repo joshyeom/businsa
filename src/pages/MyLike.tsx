@@ -1,5 +1,5 @@
-import { db, storage } from "../firebase";
-import { doc , getDoc, deleteDoc, updateDoc} from "firebase/firestore";
+import { db } from "../firebase";
+import { doc , getDoc, updateDoc} from "firebase/firestore";
 import { useAuth } from "../contexts/AuthContext";
 import { useEffect, useState } from "react";
 import { useRouteHandler } from "../hooks/useRouteHandler";
@@ -10,7 +10,6 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Button } from "@/components/ui/button";
-import { deleteObject, listAll, ref } from "firebase/storage";
 
 
 
@@ -39,18 +38,17 @@ const MyLike = () => {
                 const userDocSnap = await getDoc(buyerPostsRef);
                 
                 if (userDocSnap.exists()) {
-                 
+
                     const userData = userDocSnap.data();
                     const likePostIdArray = userData.likePostId;
-
                     if (likePostIdArray && likePostIdArray.length > 0) {
                         const postFetches = likePostIdArray.map(async (postId: string) => {
                             const postDocRef = doc(db, 'allPosts', postId);
                             const postDocSnap = await getDoc(postDocRef);
                             if (postDocSnap.exists()) {
                                 return { ...postDocSnap.data(), id: postDocSnap.id };
-                            } else {
-                                return null;
+                            }else{
+                              return null
                             }
                         });
                         const posts = await Promise.all(postFetches);
@@ -73,29 +71,20 @@ const MyLike = () => {
 
 
 
-    const deletePost = async (postId: string, uid: string) => {
+    const deleteLike = async (postId: string, uid: string) => {
       try {
-          const postDocRef = doc(db, 'allPosts', postId);
-          await deleteDoc(postDocRef);
 
           const buyerPostsRef = doc(db, "buyerPosts", uid);
           const docSnap = await getDoc(buyerPostsRef);
           const snapData = docSnap.data();
           
-          const folderRef = ref(storage, `images/${postId}`);
-          const fileList = await listAll(folderRef);
-          const deletePromises = fileList.items.map(fileRef => deleteObject(fileRef));
-          await Promise.all(deletePromises);  
-
-
           if(!snapData){
             return
           }
 
-          const snapDataPostsId = snapData.postsId || [];
-          const filteredData = snapDataPostsId.filter((id: string) => id !== postId)
+          const filteredData = snapData.likePostId.filter((id: string) => id !== postId)
           await updateDoc(buyerPostsRef, {
-            postsId: filteredData,
+            likePostId: filteredData,
           });
 
       } catch (error) {
@@ -106,7 +95,7 @@ const MyLike = () => {
     const deleteHandler = (postId: string, uid: string, index: number) => {
       const confirmed = confirm("찜 목록에서 삭제 하시겠습니까?")
       if(confirmed){
-        deletePost(postId, uid)
+        deleteLike(postId, uid)
         setUserData((prev) => prev.filter((_, i) => i !== index))
         alert("삭제 성공")
       }
