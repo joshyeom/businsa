@@ -6,6 +6,7 @@ import { Helmet } from 'react-helmet'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { Suspense } from "react";
+import Payment from "./pages/Payment";
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
               <Route path="/myLike" element={<MyLike />} />
               <Route path="/detail/:id" element={<DetailPost />} />
               <Route path="/:id" element={<Category />} />
+              <Route path="/payment" element={<Payment/>} />
             </Routes>
           </Suspense>
           <ReactQueryDevtools initialIsOpen={true} />
