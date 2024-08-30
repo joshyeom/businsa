@@ -44,7 +44,7 @@ const Main = () => {
         <section className="w-4/5 max-w-[1100px] mx-auto flex flex-wrap gap-[20px]">
           {allPosts.length > 0 ? (
             allPosts.map((data) => (
-              <Card className="w-full sm:basis-[calc(50%-20px)] md:basis-[calc(25%-20px)] flex-shrink-0" key={data.id}>
+              <Card className="w-full sm:basis-[calc(50%-20px)] md:basis-[calc(25%-20px)] flex-shrink-0 overflow-hidden" key={data.id}>
                 <img
                   src={data.imageUrls[0]}
                   alt={data.title}
