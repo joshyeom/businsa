@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { Main, Signin, Signup, CreatePost, MyPosts, DetailPost, EditPost, MyLike, Category } from "./pages";
+import { Main, Signin, Signup, CreatePost, MyPosts, DetailPost, EditPost, MyLike, Category, Admin } from "./pages";
 import { AuthProvider } from "./contexts/AuthContext";
 import './index.css'
 import { Helmet } from 'react-helmet'
@@ -31,6 +31,7 @@ const App = () => {
               <Route path="/detail/:id" element={<DetailPost />} />
               <Route path="/:id" element={<Category />} />
               <Route path="/payment" element={<Payment/>} />
+              <Route path="/admin" element={<Admin/>} />
             </Routes>
           </Suspense>
           <ReactQueryDevtools initialIsOpen={true} />

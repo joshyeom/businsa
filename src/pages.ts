@@ -2,6 +2,7 @@ import { lazy } from 'react';
 
 export { default as Main } from './pages/Main';
 export { default as Payment } from './pages/Payment';
+export { default as Admin } from './pages/admin';
 export const Signin = lazy(() => import('./pages/Signin'));
 export const Signup = lazy(() => import('./pages/Signup'));
 export const CreatePost = lazy(() => import('./pages/CreatePost'));
