@@ -1,0 +1,10 @@
+# 모든 검색 엔진 봇에게 /private 디렉토리 크롤링을 금지합니다.
+User-agent: *
+Disallow: /private/
+
+# Google 봇에게 /public 디렉토리의 모든 페이지를 크롤링하도록 허용합니다.
+User-agent: Googlebot
+Allow: /public/
+
+# 사이트맵의 위치를 명시합니다.
+Sitemap: https://localhost:5173/sitemap.xml

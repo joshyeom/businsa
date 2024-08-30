@@ -11,6 +11,7 @@
 - pages/: 페이지 컴포넌트.
 - styles/: 스타일 파일.
 - utils/: 함수 모듈
+- contexts/: context API 모듈
 
 3. 이름 규칙
 

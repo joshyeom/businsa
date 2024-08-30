@@ -23,8 +23,8 @@ const Login = () => {
   return(
     <>
         <div>로그인하세요</div>
-        <input type="text" placeholder="이메일 입력" value={email} name="email" onChange={(event) => changeHandler(event ,setEmail)}></input>
-        <input type="password" placeholder="비밀번호 입력 5자리 이상" value={password} name="password" onChange={(event) => changeHandler(event ,setPassword)}></input>
+        <input type="text" placeholder="이메일 입력" value={email} name="email" onChange={(event) => changeHandler(event ,setEmail)}/>
+        <input type="password" placeholder="비밀번호 입력 5자리 이상" value={password} name="password" onChange={(event) => changeHandler(event ,setPassword)}/>
         <button onClick={() => signinHandler(email, password)}>로그인</button>
     </>
 )
