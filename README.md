@@ -10,7 +10,6 @@
   - [Installation](#installation)
   - [Configuration](#configuration)
 - [[3] Usage](#3-usage)
-- [[4] Contribution](#4-contribution)
 - [[5] Acknowledgement](#5-acknowledgement)
 - [[6] Contact](#6-contact)
 - [[7] License](#7-license)
@@ -82,17 +81,12 @@ javascript
 const addToCart = (productId) => {
   // 장바구니에 상품 추가
 };
-[4] Contribution
-기여해주신 모든 분들께 감사드립니다. contributing guide를 참고해주세요. 이 프로젝트에 기여하신 분들을 소개합니다!
 
 ✨ dev-ujin: 이미지 최적화를 통한 성능 개선
 [5] Acknowledgement
 Best-README-Template - othneildrew
 Firebase Documentation
 [6] Contact
-📧 dev.ujin518@gmail.com
-📋 https://dev-ujin.github.io/contact
-[7] License
-MIT 라이센스에 따라 배포됩니다. 자세한 내용은 LICENSE 파일을 참조하세요.
+📧 jhyeom95@naver.com
 
 <!--Url for Badges--> <!--Url for Buttons--> <!--URLS-->
