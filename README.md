@@ -18,7 +18,7 @@
 ## 설치 방법
 1. 이 저장소를 클론합니다:
     ```bash
-    git clone https://github.com/your-repo/businsa.git
+    git clone https://github.com/joshyeom/businsa.git
     ```
 2. 패키지 설치:
     ```bash
